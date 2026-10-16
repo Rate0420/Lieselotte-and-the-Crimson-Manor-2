@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6304792555dd7ca45bfe61c2bac787fe, type: 3}
+  m_Name: Greatsword_01
+  m_EditorClassIdentifier: 
+  weaponName: Zweihander
+  displayName: "\u30C4\u30F4\u30A1\u30A4\u30D8\u30F3\u30C0\u30FC"
+  description: "\u5C4B\u6577\u306E\u95C7\u306B\u5451\u307E\u308C\u305F\u9A0E\u58EB\u304C\u3001\n\u6700\u5F8C\u307E\u3067\u63E1\u3063\u3066\u3044\u305F\u5927\u5263\u3002\n\u4F59\u308A\u306B\u3082\u9577\u304F\u91CD\u3044\u305F\u3081\u3001\u4E26\u306E\u4EBA\u9593\u3067\u306F\u632F\u308B\u3046\u3053\u3068\u3059\u3089\u53F6\u308F\u306A\u3044\u3002\n\u3060\u304C\u3001\u305D\u306E\u5203\u306F\u63FA\u308B\u304C\u306C\n\u9A0E\u58EB\u306E\u77DC\u6301\u3092\u5BBF\u3057\u6575\u3092\u846C\u308A\u53BB\u308B\u3002"
+  weaponType: 1
+  weaponIcon: {fileID: 21300000, guid: 8fbf85705afb05f41974cb1c0b09310e, type: 3}
+  weaponPrefab: {fileID: 0}
+  basePower: 20
+  baseHP: 100
+  baseStaminaRecoverySpeed: 5
+  baseAttackSpeed: 1
+  baseMoveSpeed: 1.5
+  baseFatalAttackDamage: 13
+  baseParryReceptionTime: 0.2
+  baseComboGraceTime: 2.4
+  baseGuradStaminaLoss: 20
+  MAX_Stamina: 100
+  weaponArtsDamage: 4
+  parryStartFrame: 0
+  parryEndFrame: 0.2
+  parryFailStaminaCost: 35
+  CharacterMotionSet:
+    AnimatorController: {fileID: 9100000, guid: 19e9184b397507a42bb8db827f358779, type: 2}
+    AttackMotionTimes:
+    - 1.13
+    - 1.06
+    - 1.03
+    AttackColliderTiming:
+    - 1
+    - 0.8
+    - 0.55
+    AttackColliderSize: {x: 1.5, y: 2, z: 2}
+    AttackColliderPosition: {x: 0, y: 1, z: 1.1}
+  hitboxStartTime: 100
+  hitboxDuration: 100
+  UniqueAttack: {fileID: 11400000, guid: a6169be5987f4bc49850bff3dfb90ac4, type: 2}
+  comboHitData:
+  - hitTimes:
+    - 1
+  - hitTimes:
+    - 0.8
+  - hitTimes:
+    - 0.55

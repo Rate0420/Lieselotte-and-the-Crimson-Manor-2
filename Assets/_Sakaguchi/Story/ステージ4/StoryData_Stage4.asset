@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a296c53c01a8f3c40a0f757067c830e5, type: 3}
+  m_Name: StoryData_Stage4
+  m_EditorClassIdentifier: 
+  char1Sprite:
+  - {fileID: 21300000, guid: c3ef4f9974aae504aada113a08708e22, type: 3}
+  - {fileID: 21300000, guid: 03db202e1b409144d92cb3773f0302db, type: 3}
+  - {fileID: 21300000, guid: c83144882cc9ddd4687e41aeb743c71b, type: 3}
+  - {fileID: 21300000, guid: c83144882cc9ddd4687e41aeb743c71b, type: 3}
+  - {fileID: 21300000, guid: 3d20ed03b64901f419032185932bb804, type: 3}
+  - {fileID: 21300000, guid: d1d8e457a9ce4704aa29eed2feb09d5d, type: 3}
+  char2Sprite:
+  - {fileID: 21300000, guid: 8feed2426a435614f8b5bc84e27995aa, type: 3}
+  - {fileID: 21300000, guid: 8feed2426a435614f8b5bc84e27995aa, type: 3}
+  - {fileID: 21300000, guid: 8feed2426a435614f8b5bc84e27995aa, type: 3}
+  - {fileID: 21300000, guid: 8b83e65e2eea08c4cba497e82f1656d3, type: 3}
+  - {fileID: 21300000, guid: 8b83e65e2eea08c4cba497e82f1656d3, type: 3}
+  - {fileID: 21300000, guid: 8b83e65e2eea08c4cba497e82f1656d3, type: 3}
+  bgSprite:
+  - {fileID: 21300000, guid: 2284f707755e34c45a7ecd49b9ffffac, type: 3}
+  - {fileID: 21300000, guid: 2284f707755e34c45a7ecd49b9ffffac, type: 3}
+  - {fileID: 21300000, guid: 2284f707755e34c45a7ecd49b9ffffac, type: 3}
+  - {fileID: 21300000, guid: 2284f707755e34c45a7ecd49b9ffffac, type: 3}
+  - {fileID: 21300000, guid: 2284f707755e34c45a7ecd49b9ffffac, type: 3}
+  - {fileID: 21300000, guid: 2284f707755e34c45a7ecd49b9ffffac, type: 3}
+  name:
+  - none
+  - none
+  - "\u30EA\u30FC\u30BC\u30ED\u30C3\u30C6"
+  - none
+  - "\u30EA\u30FC\u30BC\u30ED\u30C3\u30C6"
+  - "\u30EA\u30FC\u30BC\u30ED\u30C3\u30C6"
+  text:
+  - "\u30EA\u30FC\u30BC\u30ED\u30C3\u30C6\u306E\u76EE\u306E\u524D\u306B\u73FE\u308C\u305F\u306E\u306F\u3001\\n\u982D\u304C\u30E9\u30F3\u30BF\u30F3\u306E\u3088\u3046\u306A\u7570\u5F62\u306E\u5B58\u5728\u3067\u3042\u3063\u305F"
+  - "\u3057\u304B\u3057\u3001\u4ECA\u56DE\u306F\u30EA\u30FC\u30BC\u30ED\u30C3\u30C6\u306F\u843D\u3061\u7740\u3044\u3066\u304A\u308A\u3001\\n\u5947\u5999\u306A\u89AA\u8FD1\u611F\u3092\u62B1\u3044\u3066\u3044\u305F\u3002"
+  - "...\u5206\u304B\u308B\u3001\u308F\u304B\u308B\u305E\u3002\u8CB4\u69D8\u3082\u9A0E\u58EB\u3060\u306A\uFF1F"
+  - "\u305D\u306E\u9A0E\u58EB\u306F\u30EA\u30FC\u30BC\u30ED\u30C3\u30C6\u306E\u554F\u3044\u306B\u7B54\u3048\u308B\u304B\u306E\u3088\u3046\u306B\\n\u5927\u5263\u3092\u69CB\u3048\u305F\u3002"
+  - "...\u6210\u7A0B\u3002\u5263\u3067\u8A9E\u308D\u3046\u3068\u3044\u3046\u308F\u3051\u304B\u3002\u4E86\u89E3\u3057\u305F\u3002"
+  - "\u304C\u3001\u3057\u304B\u3057\u3060\uFF01\u79C1\u306E\u65B9\u304C\u4E0A\uFF01\\n\u540C\u3058\u9A0E\u58EB\u3068\u3057\u3066\u306E\u683C\u306E\u9055\u3044\u3092\u6559\u3048\u3066\u3084\u308D\u3046\uFF01\\n\u884C\u304F\u305E\uFF01"
+  sceneName:
+  - Sakaguchi_BattleTestScene_LanternKnight
+  bgm:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 8300000, guid: 39c119924ece49a429cb9198f8f775b9, type: 3}
+  se:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 8300000, guid: f6eac3b6c8afff848b46ec403afefcc3, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  voice:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 8300000, guid: b68c321058dfca34d87419f8b4c06a23, type: 3}
+  - {fileID: 0}
+  - {fileID: 8300000, guid: eeeb3979bb86e654c91993f30ec422bc, type: 3}
+  - {fileID: 8300000, guid: bb1e4fb7468081b4d8f496e7234ef2f2, type: 3}
+  scEffect: 

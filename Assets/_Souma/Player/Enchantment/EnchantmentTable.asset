@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c762d1c02b0f2c54e8b9e701303993d6, type: 3}
+  m_Name: EnchantmentTable
+  m_EditorClassIdentifier: 
+  EnchantmentTablesData:
+  - AgeUp: 9
+    GuardReinforcement: 9
+    DeadlyAttack: 9
+    FirstCombo: 9
+    HP: 9
+    SK: 9
+    WeaponArt: 9
+    AU: 9
+    ComboGracePeriodUP: 10
+    ParryGraceTimeUP: 9
+    AttackIntervalUP: 9
+  - AgeUp: 10
+    GuardReinforcement: 10
+    DeadlyAttack: 10
+    FirstCombo: 10
+    HP: 10
+    SK: 10
+    WeaponArt: 9
+    AU: 8
+    ComboGracePeriodUP: 8
+    ParryGraceTimeUP: 8
+    AttackIntervalUP: 7
+  - AgeUp: 13
+    GuardReinforcement: 13
+    DeadlyAttack: 13
+    FirstCombo: 13
+    HP: 10
+    SK: 10
+    WeaponArt: 8
+    AU: 7
+    ComboGracePeriodUP: 5
+    ParryGraceTimeUP: 5
+    AttackIntervalUP: 3
+  - AgeUp: 15
+    GuardReinforcement: 15
+    DeadlyAttack: 15
+    FirstCombo: 15
+    HP: 9
+    SK: 9
+    WeaponArt: 7
+    AU: 5
+    ComboGracePeriodUP: 4
+    ParryGraceTimeUP: 4
+    AttackIntervalUP: 2
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1
+  - AgeUp: 16
+    GuardReinforcement: 16
+    DeadlyAttack: 16
+    FirstCombo: 16
+    HP: 12
+    SK: 12
+    WeaponArt: 4
+    AU: 3
+    ComboGracePeriodUP: 2
+    ParryGraceTimeUP: 2
+    AttackIntervalUP: 1

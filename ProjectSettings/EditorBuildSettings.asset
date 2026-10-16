@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Kioka/Scene/TitleScene.unity
+    guid: 1c0b94abb3efadf4f94e339974169a67
+  - enabled: 1
+    path: Assets/_Kioka/Scene/StoryScene.unity
+    guid: a606f293d41b45341b05e0f45cb01fa4
+  - enabled: 1
+    path: Assets/_Tsujita/Scenes/TutorialScene.unity
+    guid: 5bc895ebb22328f42b5fb6a9f155d2b0
+  - enabled: 1
+    path: Assets/_Tsujita/Scenes/SelectScene.unity
+    guid: 22302c9e92d44574aaac948296e9f3cd
+  - enabled: 1
+    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_RedWingHunter.unity
+    guid: 009b6ab7b2ec7bf488bcca80d6e2e97c
+  - enabled: 1
+    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_WerewolfWarrior.unity
+    guid: c8e9bd337787ce141a05a22724952f12
+  - enabled: 1
+    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_HeadlessMaid.unity
+    guid: bc459dd7848b08548805f88b407947d5
+  - enabled: 1
+    path: Assets/_Tsujita/Scenes/TestStage/Stage3.unity
+    guid: 680e9020ec2fa3840a905145f1a4c397
+  - enabled: 1
+    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_LanternKnight.unity
+    guid: dc2f1ed7edb91c045a2ca09cb77b1944
+  - enabled: 1
+    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_Vermillion.unity
+    guid: cebf35afc15284b4691228c7043cd67a
+  - enabled: 1
+    path: Assets/_Tsujita/Scenes/ResultScene.unity
+    guid: 32fba2dd5e02fea4d9c875ebbb9c6580
+  - enabled: 1
+    path: Assets/_Sakaguchi/Story/StoryScene_SakaguchiTest.unity
+    guid: 04a7f29df91e13140a50c1629fa11168
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 96617fd8692e4b6459149a67e74df3a7, type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 85e44f902f618b446a137895b29cfa05, type: 3}
+  m_UseUCBPForAssetBundles: 0

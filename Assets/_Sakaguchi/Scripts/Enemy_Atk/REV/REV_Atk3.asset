@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c78f8307c37394943b4c77ca30c02c15, type: 3}
+  m_Name: REV_Atk3
+  m_EditorClassIdentifier: 
+  dir: 000000000200000003000000
+  atkiInterval:
+  - 1
+  - 0.6
+  - 0.93
+  atkTime:
+  - 0.16
+  - 0.13
+  - 0.16
+  atkDamage: 0a0000000a00000014000000
+  atkAnimName: REV_Attack_3
+  endLagTime: 0.76

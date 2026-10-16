@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c78f8307c37394943b4c77ca30c02c15, type: 3}
+  m_Name: HLMAttack3
+  m_EditorClassIdentifier: 
+  dir: 0300000000000000
+  atkiInterval:
+  - 0.83
+  - 0.26
+  atkTime:
+  - 0.06
+  - 0.06
+  atkDamage: 0a0000000a000000
+  atkAnimName: HLM_Attack_3
+  endLagTime: 0.4

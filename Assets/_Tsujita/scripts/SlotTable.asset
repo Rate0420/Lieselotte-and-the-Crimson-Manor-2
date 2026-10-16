@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3647efb8c5dc2d14aadb9a2acdd427da, type: 3}
+  m_Name: SlotTable
+  m_EditorClassIdentifier: 
+  SlotsTableData:
+  - Slot1: 0
+    Slot2: 50
+    Slot3: 50
+  - Slot1: 0
+    Slot2: 80
+    Slot3: 20
+  - Slot1: 60
+    Slot2: 35
+    Slot3: 5
+  - Slot1: 84
+    Slot2: 15
+    Slot3: 1
+  - Slot1: 100
+    Slot2: 0
+    Slot3: 0

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c78f8307c37394943b4c77ca30c02c15, type: 3}
+  m_Name: LKAttack1
+  m_EditorClassIdentifier: 
+  dir: 030000000300000003000000
+  atkiInterval:
+  - 1.5
+  - 0.6
+  - 1
+  atkTime:
+  - 0.16
+  - 0.16
+  - 0.16
+  atkDamage: 1e0000001e0000001e000000
+  atkAnimName: LK_Attack
+  endLagTime: 0.76
