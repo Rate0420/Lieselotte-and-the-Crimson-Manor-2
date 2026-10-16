@@ -33,23 +33,26 @@ public class PlayerDamageReceiver : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log("PlayerDamageReceiver: OnTriggerEnter");
-        if (isDamagedThisAttack) return;
-        Debug.Log("PlayerDamageReceiver: Not Damaged Yet");
-        isDamagedThisAttack = true;
 
         if (other.gameObject.tag == "EnemyAtk")
         {
             Debug.Log("PlayerDamageReceiver: Hit by Enemy Attack");
             EnemyController enemyController = other.gameObject.GetComponentInParent<EnemyController>();
+            if (enemyController == null) return;
+            // 多段ヒット防止フラグは、敵の攻撃判定だと分かってから立てる(他のトリガーで立つと本物の攻撃を無視してしまうため)
+            if (isDamagedThisAttack) return;
+            isDamagedThisAttack = true;
             //パリィ成功の条件
-            if(playerParry.isParrying) Debug.Log("PlayerDamageReceiver: Player is Parrying");
-            if(playerParry.parryState == enemyController.currentAttackDir) Debug.Log("PlayerDamageReceiver: Parry Direction Matches Attack Direction");
+            if (playerParry.isParrying) Debug.Log("PlayerDamageReceiver: Player is Parrying");
+            if (playerParry.parryState == enemyController.currentAttackDir) Debug.Log("PlayerDamageReceiver: Parry Direction Matches Attack Direction");
             if (playerParry.isParrying && playerParry.parryState == enemyController.currentAttackDir)
             {
                 Debug.Log("Parry Success!");
                 // ひとまずboxcolliderを無効化して攻撃を当てないようにする
-                other.GetComponent<BoxCollider>().enabled = false;
-                other.GetComponent<MeshRenderer>().enabled = false;
+                var atkCol = other.GetComponent<BoxCollider>();
+                if (atkCol != null) atkCol.enabled = false;
+                var atkMesh = other.GetComponent<MeshRenderer>();
+                if (atkMesh != null) atkMesh.enabled = false;
                 enemyController.GetParry();
                 comboManager.ComboContinues();
                 // パリィエフェクトの生成
@@ -65,13 +68,14 @@ public class PlayerDamageReceiver : MonoBehaviour
                 }
                 if (playerManager.GuardFlg)
                 {
-                    if (playerStatusManager.CurrentVitality > playerStatusManager.GuardVitalityConsumption)
+                    // PlayerGuard.Guard()の判定(<で弾く)と揃えて、ちょうど足りている場合もガード成立にする
+                    if (playerStatusManager.CurrentVitality >= playerStatusManager.GuardVitalityConsumption)
                     {
                         if (tutorialManager != null)
                             if (tutorialManager.tutorialNum == 1)
                                 tutorialManager.TutorialCount();
                         // ジャストガードの判定
-                        if(justguardTimer <= JustGuardTime)
+                        if (justguardTimer <= JustGuardTime)
                         {
                             Debug.Log("Just Guard!");
                             // ジャストガード成功のエフェクトを生成
@@ -105,12 +109,13 @@ public class PlayerDamageReceiver : MonoBehaviour
                     }
                     else
                     {
-                        playerManager.GuardFlg = false;
+                        // スタミナ切れ。GuardFlgだけでなくGuard_Boxも一緒に解除する
+                        playerManager.playerGuard.GuardRelease();
                         Debug.Log("Take Damage");
                         TakeDamage(enemyController.currentAttackDamage, other.transform, enemyController.currentAttackDir);
                     }
                 }
-                else 
+                else
                 {
                     Debug.Log("Take Damage");
                     TakeDamage(enemyController.currentAttackDamage, other.transform, enemyController.currentAttackDir);
@@ -118,18 +123,21 @@ public class PlayerDamageReceiver : MonoBehaviour
             }
         }
     }
-    public void TakeDamage(int damage, Transform attacker, int damageDir,bool down = false)
+    public void TakeDamage(int damage, Transform attacker, int damageDir, bool down = false)
     {
         // ダメージが0以下なら無効化
         if (damage <= 0)
         {
-            
+
             return;
         }
 
+        // 無敵中・ダウン中はダメージを受けない(PlayerManager.OnDamageと条件を揃える)
+        if (playerManager.mutekiFlg || playerManager.DownFlg) return;
+
         // SE再生
         // ダメージSEの再生
-        int seIndex = Random.Range(0, 2);
+        int seIndex = Random.Range(0, 3);
 
         switch (seIndex)
         {
@@ -151,7 +159,7 @@ public class PlayerDamageReceiver : MonoBehaviour
         Instantiate(DamageEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
 
         // 攻撃中ならキャンセルし、ダメージ時のモーションを再生
-        playerManager.OnDamage(damageDir,down, attacker);
+        playerManager.OnDamage(damageDir, down, attacker);
         if (tutorialManager != null)
             if (!tutorialManager.isTutorialCompleted)
                 return;

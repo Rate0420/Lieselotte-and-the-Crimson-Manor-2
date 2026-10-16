@@ -15,7 +15,7 @@ public class PlayerParry : MonoBehaviour
     Coroutine currentCoroutine;
     Coroutine currentFlgCoroutine;
     public enum parryDir
-    { 
+    {
         上,
         下,
         左,
@@ -30,6 +30,9 @@ public class PlayerParry : MonoBehaviour
         {
             StopCoroutine(currentCoroutine);
             if (currentFlgCoroutine != null) StopCoroutine(currentFlgCoroutine);
+            // 止めたParry()は最後の後始末まで走らないので、ここで判定を片付ける
+            isParrying = false;
+            parryCol.SetActive(false);
         }
         currentCoroutine = StartCoroutine(Parry(dir));
     }
@@ -46,19 +49,19 @@ public class PlayerParry : MonoBehaviour
         switch (dir)
         {
             case parryDir.上:
-                playerManager.ContinuousPlayAnim(playerManager.aNameParry_U,0);
+                playerManager.ContinuousPlayAnim(playerManager.aNameParry_U, 0);
                 parryState = (int)parryDir.上;
                 break;
             case parryDir.下:
-                playerManager.ContinuousPlayAnim(playerManager.aNameParry_D,0);
+                playerManager.ContinuousPlayAnim(playerManager.aNameParry_D, 0);
                 parryState = (int)parryDir.下;
                 break;
             case parryDir.左:
-                playerManager.ContinuousPlayAnim(playerManager.aNameParry_L,0);
+                playerManager.ContinuousPlayAnim(playerManager.aNameParry_L, 0);
                 parryState = (int)parryDir.左;
                 break;
             case parryDir.右:
-                playerManager.ContinuousPlayAnim(playerManager.aNameParry_R,0);
+                playerManager.ContinuousPlayAnim(playerManager.aNameParry_R, 0);
                 parryState = (int)parryDir.右;
                 break;
         }
@@ -71,7 +74,7 @@ public class PlayerParry : MonoBehaviour
         // 後隙終了
         //playerManager.ParryFlg = false;
     }
-    
+
     IEnumerator PallyFlgController()
     {
         // 現在再生中のアニメーションが終わり、gapInParryMotion分待ったらfalseにする
@@ -94,6 +97,7 @@ public class PlayerParry : MonoBehaviour
         if (currentCoroutine != null)
         {
             StopCoroutine(currentCoroutine);
+            if (currentFlgCoroutine != null) StopCoroutine(currentFlgCoroutine);
             // 状態リセット
             playerManager.PlayAnim(playerManager.aNameIdol);
             playerManager.ParryFlg = false;

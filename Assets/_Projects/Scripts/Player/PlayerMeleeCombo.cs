@@ -44,7 +44,7 @@ public class PlayerMeleeCombo : MonoBehaviour
     {
         if (!firstcheck) FirstCheck();
 
-        if (comboStep != animTimes.Length-1)  attackButtonPressedThisFrame = true;
+        if (comboStep != animTimes.Length - 1) attackButtonPressedThisFrame = true;
 
         if (attackButtonPressedThisFrame && !playerManager.ComboFlg)
         {
@@ -59,13 +59,14 @@ public class PlayerMeleeCombo : MonoBehaviour
         if (comboStep >= comboHitData.Length) yield break;
 
         // 攻撃開始
+        // ComboFlgを立てる前に判定する(立てたまま抜けるとComboFlgが戻らなくなる)
+        if (playerManager.dummyFlg) yield break;
         playerManager.ComboFlg = true;
 
         // 攻撃速度反映
         playerManager.anim.speed = attackSpeed;
 
         bufferedCombo = false;
-        if (playerManager.dummyFlg) yield break;
         playerManager.ContinuousPlayAnim(playerManager.comboAnims[comboStep], 0.2f);
         playerManager.faceController.PlayCustomExpression("attack", animTimes[comboStep]);
 
@@ -75,8 +76,8 @@ public class PlayerMeleeCombo : MonoBehaviour
         // ① 攻撃開始時に1回だけ ON
         isFirstAttack = true;
         playerStatusManager.MeleeAtkOnOff(true);
-        
-        if (playerStatusManager.nowAtkState != "MeleeComboFinish")playerStatusManager.nowAtkState = "MeleeCombo";
+
+        if (playerStatusManager.nowAtkState != "MeleeComboFinish") playerStatusManager.nowAtkState = "MeleeCombo";
 
         //// ダメージ判定が有効になる時間
         //float hitStart = comboColOffset[comboStep];
@@ -176,6 +177,7 @@ public class PlayerMeleeCombo : MonoBehaviour
 
         // ② 攻撃アニメーション終了時に1回だけ OFF
         playerStatusManager.MeleeAtkOnOff(false);
+        playerStatusManager.GB_AtkOnOff(false);   // ヒット判定が残らないようにする
 
         // 次のコンボへ
         if (bufferedCombo)
@@ -210,6 +212,7 @@ public class PlayerMeleeCombo : MonoBehaviour
             bufferedCombo = false;
             playerManager.ComboFlg = false;
             playerStatusManager.MeleeAtkOnOff(false);
+            playerStatusManager.GB_AtkOnOff(false);   // ヒット判定が残らないようにする
             playerStatusManager.nowAtkState = "";
             seFlg = false;
         }

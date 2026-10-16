@@ -83,6 +83,7 @@ public class PlayerManager : MonoBehaviour
     public Vector3 dir;
 
     Coroutine hitCoroutine;
+    Coroutine trailFadeCoroutine;
     Rigidbody rb;
 
     private Vector2 moveInput;
@@ -98,7 +99,7 @@ public class PlayerManager : MonoBehaviour
     {
         // VSyncCount を Dont Sync に変更
         QualitySettings.vSyncCount = 0;
-        // 60fpsを目標に設定
+        // 30fpsに設定
         Application.targetFrameRate = 30;
     }
 
@@ -119,7 +120,7 @@ public class PlayerManager : MonoBehaviour
         {
             ActivateTrail();
         }
-        else if (!GuardFlg && !ComboFlg && !ParryFlg &&  !UAFlg && changeColor.a != 0)
+        else if (!GuardFlg && !ComboFlg && !ParryFlg && !UAFlg && changeColor.a != 0)
         {
             DeactivateTrail(trailFadeTime);
         }
@@ -317,6 +318,9 @@ public class PlayerManager : MonoBehaviour
 
         if (DownFlg) return;
 
+        // ガード中に被弾した場合はガード状態(Guard_Boxなど)も解除する
+        playerGuard.GuardRelease();
+
         // 攻撃中ならキャンセル
         playerMeleeCombo.Stop();
         player_GB_Attack.Stop();
@@ -387,7 +391,7 @@ public class PlayerManager : MonoBehaviour
             rb.AddForce(knockbackDir * knockbackForce, ForceMode.VelocityChange);
         }
         yield return new WaitForSeconds(0.4f);
-        yield return new WaitForSeconds(DownMotionTime-0.4f);
+        yield return new WaitForSeconds(DownMotionTime - 0.4f);
 
         if (rb != null)
         {
@@ -407,6 +411,7 @@ public class PlayerManager : MonoBehaviour
     // trailMatのalphaを変える
     public void ActivateTrail()
     {
+        if (trailFadeCoroutine != null) { StopCoroutine(trailFadeCoroutine); trailFadeCoroutine = null; }
         changeColor.a = 0.2f;
         trailMat.color = changeColor;
     }
@@ -414,7 +419,8 @@ public class PlayerManager : MonoBehaviour
     // フェードする
     public void DeactivateTrail(float fadetime)
     {
-        StartCoroutine(TrailFadeCoroutine(fadetime));
+        if (trailFadeCoroutine != null) return;   // FixedUpdateから毎回呼ばれるので多重起動しない
+        trailFadeCoroutine = StartCoroutine(TrailFadeCoroutine(fadetime));
     }
 
     IEnumerator TrailFadeCoroutine(float fadetime)
@@ -423,24 +429,25 @@ public class PlayerManager : MonoBehaviour
         // fadetime秒かけてalphaを0にする
         while (alpha > 0)
         {
-            if(ComboFlg || ParryFlg) yield break;
+            if (ComboFlg || ParryFlg) break;
             alpha -= Time.deltaTime / fadetime * 0.5f;
             if (alpha < 0) alpha = 0;
             changeColor.a = alpha;
             trailMat.color = changeColor;
             yield return null;
         }
+        trailFadeCoroutine = null;
     }
 
     public void ChangeColorTrail(Color color)
-    { 
+    {
         color.a = changeColor.a;
         changeColor = color;
         trailMat.color = color;
     }
 
     public void GiveInvincible(float a)
-    { 
+    {
         StartCoroutine(InvincibleCoroutine(a));
     }
 
