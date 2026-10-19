@@ -67,7 +67,7 @@ public class PlayerStatusManager : MonoBehaviour
     // 初撃ダメージ補正
     public float firstAtkDmgRate = 1f;
 
-    public float parryStamina; 
+    public float parryStamina;
 
     public WeaponInstance weaponInstance;   // 武器のインスタンス情報(後々static状態の現在装備中のインスタンスをここに入れるor読み込む)
 
@@ -89,7 +89,7 @@ public class PlayerStatusManager : MonoBehaviour
     private void Start()
     {
         weaponInstance = WeaponInventory.Instance.GetWeapon(WeaponInventory.Instance.equipmentIndex);
-        if(weaponInstance == null) weaponInstance = WeaponInventory.Instance.GetWeapon(0);
+        if (weaponInstance == null) weaponInstance = WeaponInventory.Instance.GetWeapon(0);
 
         // 付呪などの装備情報をここで読み込む
         MaxHp = weaponInstance.HP;
@@ -103,7 +103,7 @@ public class PlayerStatusManager : MonoBehaviour
         comboTime = weaponInstance.comboBufferTime;
         parryTime = weaponInstance.parryBufferTime;
         GuardVitalityConsumption = weaponInstance.guardStaminaCost;
-        if(GuardVitalityConsumption < 0) GuardVitalityConsumption = 0;
+        if (GuardVitalityConsumption < 0) GuardVitalityConsumption = 0;
         firstAtkDmgRate = weaponInstance.firstAttackBoost;
 
         // 付呪で変わらないステータス読み込み
@@ -125,7 +125,7 @@ public class PlayerStatusManager : MonoBehaviour
         // 攻撃速度
         moveManager.moveSpeed = MoveSpeed;
         playerMeleeCombo.attackSpeed = attackSpeed;
-        GameObject.Find("ComboCanvas").GetComponent<ComboManager>().comboDuration = comboTime;
+        playerManager.comboManager.comboDuration = comboTime;
         playerManager.playerParry.parryGrace = parryTime;
         playerDamageReceiver.JustGuardTime = parryTime;
 
@@ -251,7 +251,7 @@ public class PlayerStatusManager : MonoBehaviour
     }
 
     public void ScoreEnter()
-    { 
+    {
         GameSceneData.instance.gsdHPDeta = CurrentHp;
         GameSceneData.instance.gsdComboDeta = maxCombo;
         GameSceneData.instance.gsdParryDeta = parryCount;

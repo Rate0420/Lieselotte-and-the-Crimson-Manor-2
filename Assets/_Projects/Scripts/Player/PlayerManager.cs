@@ -23,6 +23,7 @@ public class PlayerManager : MonoBehaviour
     public ComboManager comboManager;
 
     public UniqueAttack uniqueAttack;
+    public PlayerGuardCounter playerGuardCounter;   // リーゼロッテ専用(他キャラは未設定でOK)
 
     [SerializeField] Material trailMat;
     Color changeColor;
@@ -65,6 +66,7 @@ public class PlayerManager : MonoBehaviour
     public bool GB_AttackFlg;
     public bool ParryFlg;
     public bool UAFlg;
+    public bool GuardCounterFlg;
 
     public bool SkillFlg;
     public bool UltFlg;
@@ -99,7 +101,7 @@ public class PlayerManager : MonoBehaviour
     {
         // VSyncCount を Dont Sync に変更
         QualitySettings.vSyncCount = 0;
-        // 30fpsに設定
+        // 60fpsを目標に設定
         Application.targetFrameRate = 30;
     }
 
@@ -129,7 +131,7 @@ public class PlayerManager : MonoBehaviour
 
         if (!dummyFlg)
         {
-            if (ComboFlg || GuardFlg || GB_AttackFlg || UltFlg || GameEndFlg || ParryFlg || UAFlg) return;
+            if (ComboFlg || GuardFlg || GB_AttackFlg || UltFlg || GameEndFlg || ParryFlg || UAFlg || GuardCounterFlg) return;
             dir = new Vector3(moveInput.x, 0, moveInput.y);
         }
 
@@ -246,7 +248,26 @@ public class PlayerManager : MonoBehaviour
     // 近接攻撃
     public void MeleeAttack(InputAction.CallbackContext context)
     {
-        if (!GuardFlg && !GB_AttackFlg && !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && context.phase == InputActionPhase.Performed)
+        if (context.phase == InputActionPhase.Performed)
+        {
+            Debug.Log("ぱふぉーむど");
+        }
+        if (GuardFlg)
+        { 
+            Debug.Log("ガード中");
+        }
+        if(playerGuardCounter.CanCounter)
+        {
+            Debug.Log("カウンター受付中");
+        }
+        // ガード中で、被弾直後(カウンター受付時間内)なら、通常攻撃ではなくガードカウンターを出す
+        if (context.phase == InputActionPhase.Performed && GuardFlg && playerGuardCounter != null && playerGuardCounter.CanCounter)
+        {
+            Debug.Log("ガードカウンター発動");
+            playerGuardCounter.Counter();
+            return;
+        }
+        if (!GuardFlg && !GB_AttackFlg && !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && !GuardCounterFlg && context.phase == InputActionPhase.Performed)
             playerMeleeCombo.MeleeCombo();
     }
     // ガード関連
@@ -309,7 +330,7 @@ public class PlayerManager : MonoBehaviour
     bool CheckAllFlgisOff()
     {
         return !ComboFlg && !GuardFlg && !GB_AttackFlg &&
-               !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg;
+               !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && !GuardCounterFlg;
     }
 
     public void OnDamage(int damageDir, bool down = false, Transform attacker = null)
@@ -318,13 +339,8 @@ public class PlayerManager : MonoBehaviour
 
         if (DownFlg) return;
 
-        // ガード中に被弾した場合はガード状態(Guard_Boxなど)も解除する
-        playerGuard.GuardRelease();
-
-        // 攻撃中ならキャンセル
-        playerMeleeCombo.Stop();
-        player_GB_Attack.Stop();
-        playerParry.Stop();
+        // ガード・攻撃・パリィなど、今の行動をすべてキャンセルする
+        CancelAllActions();
 
         if (hitCoroutine != null)
         {
@@ -340,6 +356,20 @@ public class PlayerManager : MonoBehaviour
             //  コルーチンを保存する
             hitCoroutine = StartCoroutine(Hit(damageDir));
         }
+    }
+
+    /// <summary>
+    /// 今の行動(ガード・コンボ・パリィ・ガードカウンターなど)をすべて中断する。
+    /// 被弾時のほか、ヴェルミリオンの緊急回避など「全行動キャンセル」が必要な場面でも使う。
+    /// (戦技UniqueAttackは別コルーチンで動いているため、まだ含まれていない)
+    /// </summary>
+    public void CancelAllActions()
+    {
+        playerGuard.GuardRelease();
+        playerMeleeCombo.Stop();
+        player_GB_Attack.Stop();
+        playerParry.Stop();
+        if (playerGuardCounter != null) playerGuardCounter.Stop();
     }
 
     IEnumerator Hit(int dir)

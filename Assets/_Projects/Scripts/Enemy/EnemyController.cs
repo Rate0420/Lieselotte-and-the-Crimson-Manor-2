@@ -37,6 +37,7 @@ public class EnemyController : MonoBehaviour
     public bool isAttackFinished = false;
     bool isdowned = false;
     bool isdownHit = false;
+    bool isDead = false;
     public bool cancelAttack = false;
 
     float downedDuration = 5f; // ダウン状態の持続時間
@@ -83,13 +84,13 @@ public class EnemyController : MonoBehaviour
 
     private void Update()
     {
-        
+
         Vector3 lookDir = player.transform.position - transform.position;
         lookDir.y = 0;
         if (lookDir.sqrMagnitude > 0.01f)
         {
             Quaternion targetRot = Quaternion.LookRotation(lookDir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotateSpeed * Time.fixedDeltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotateSpeed * Time.deltaTime);
         }
     }
 
@@ -162,10 +163,11 @@ public class EnemyController : MonoBehaviour
 
     public void EndTutorial()
     {
+        if (isDead) return;   // 撃破済みの敵の行動ループを再開しない
         if (tutorialLoop != null)
             StopCoroutine(tutorialLoop);
 
-        if(normalLoop == null)
+        if (normalLoop == null)
             normalLoop = StartCoroutine(EnemyActionLoop());
     }
 
@@ -224,9 +226,12 @@ public class EnemyController : MonoBehaviour
 
         while (elapsed < downedDuration)
         {
-            if (!isdownHit)     elapsed += Time.deltaTime;
+            if (!isdownHit) elapsed += Time.deltaTime;
             yield return null;
         }
+
+        // 撃破済みなら復帰しない(ダウン中に倒された場合に行動ループが再開するのを防ぐ)
+        if (isDead) yield break;
 
         // ダウン解除
         isdowned = false;
@@ -259,13 +264,14 @@ public class EnemyController : MonoBehaviour
     IEnumerator DoMove()
     {
         // 移動アニメーション再生(aNameMoveがすでに再生されていた場合は無視される)
-        if (enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName(aNameMove) == false)PlayAnim(aNameMove, 0.1f);
+        if (enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName(aNameMove) == false) PlayAnim(aNameMove, 0.1f);
 
         // プレイヤーの方へ1秒間歩く（必要なら調整）
         float moveTime = 1f;
         float t = 0f;
 
-        while (t < moveTime)
+        // ダウンしたとき、または攻撃範囲に入ったら止まる
+        while (t < moveTime && !isdowned && Vector3.Distance(transform.position, player.transform.position) >= attackRange)
         {
             t += Time.deltaTime;
             transform.position = Vector3.MoveTowards(transform.position,
@@ -305,8 +311,23 @@ public class EnemyController : MonoBehaviour
 
     public void EnableAttackCollider(bool onOff)
     {
-       attackCollider.enabled = onOff;
-       attackCollider.GetComponent<MeshRenderer>().enabled = onOff;
+        attackCollider.enabled = onOff;
+        var atkMesh = attackCollider.GetComponent<MeshRenderer>();
+        if (atkMesh != null) atkMesh.enabled = onOff;
+    }
+
+    /// <summary>
+    /// 体勢ゲージを削る(0になったらダウンさせる)。パリィ以外(ガードカウンターなど)の体勢削りで使う
+    /// </summary>
+    public void DamagePosture(float amount)
+    {
+        if (isdowned || isDead) return;
+        enemyPostureGauge.ConsumePosture(amount);
+        if (enemyPostureGauge.currentPosture <= 0)
+        {
+            isdowned = true;
+            StartCoroutine(DownedState());
+        }
     }
 
     public void CancelCurrentAttack()
@@ -324,13 +345,14 @@ public class EnemyController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (isDead) return;   // 撃破後は被弾処理(ダメージ・SE・死亡処理)をやり直さない
         if (this.gameObject.tag == "EnemyAtk") return;
         if (other.CompareTag("PlayerAtk"))
         {
             PlayerStatusManager psm = other.GetComponentInParent<PlayerStatusManager>();
 
             // ダウン状態で攻撃を受けた場合(いわゆるバクスタ的な奴の処理)
-            if (isdowned && !isdownHit && psm.nowAtkState != "UniqueAttack")
+            if (isdowned && !isdownHit && psm.nowAtkState != "UniqueAttack" && psm.nowAtkState != "GuardCounter")
             {
                 isdownHit = true;
                 PlayerManager pm = other.GetComponentInParent<PlayerManager>();
@@ -347,10 +369,10 @@ public class EnemyController : MonoBehaviour
                     else hpBar.ApplyDamage(psm.MeleeAtk);
                     comboManager.ComboContinues();
                     if (tutorialManager != null)
-                        if(tutorialManager.tutorialNum == 0)
+                        if (tutorialManager.tutorialNum == 0)
                             tutorialManager.TutorialCount();
-                    
-                    
+
+
                     break;
                 case "MeleeComboFinish":
                     hpBar.ApplyDamage(psm.MeleeAtk);
@@ -358,6 +380,11 @@ public class EnemyController : MonoBehaviour
                     if (tutorialManager != null)
                         if (tutorialManager.tutorialNum == 0)
                             tutorialManager.TutorialCount();
+                    break;
+                case "GuardCounter":
+                    hpBar.ApplyDamage(psm.playerManager.playerGuardCounter.Damage);
+                    DamagePosture(psm.playerManager.playerGuardCounter.PostureDamage);
+                    comboManager.ComboContinues();
                     break;
                 case "UniqueAttack":
                     hpBar.ApplyDamage(psm.UniqueAttack);
@@ -369,7 +396,7 @@ public class EnemyController : MonoBehaviour
             // ダメージエフェクトの生成
             Instantiate(damageEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
             // ダメージSEの再生
-            int seIndex = Random.Range(0, 2);
+            int seIndex = Random.Range(0, 3);
 
             switch (seIndex)
             {
@@ -386,27 +413,43 @@ public class EnemyController : MonoBehaviour
             // もしHPが0以下になっていたら行動ループを止める
             if (hpBar.nowHp <= 0)
             {
-                if (normalLoop != null)
-                    StopCoroutine(normalLoop);
-                if (tutorialLoop != null)
-                {
-                    StopCoroutine(tutorialLoop);
-                    tutorialManager.tutorialNum++;
-                }
-                // 死亡アニメーション再生などの処理をここに入れる
-                PlayAnim(aNameDown, 0.1f);
+                // チュートリアル中の撃破ならチュートリアルを進める
+                if (tutorialLoop != null) tutorialManager.tutorialNum++;
+                // 行動ループと実行中の攻撃をまとめて止めて死亡モーションへ
+                Die();
             }
         }
     }
 
     IEnumerator WaitForHitToDown()
     {
-        // ヒットアニメーションが終了するまで待つ
-        yield return new WaitUntil(() =>
-            enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName(aNameHit) == false
-        );
+        // CrossFade直後は「現在のステート」がまだ遷移元のままなので、Hitに入るまで待つ(入らなくても1秒で諦める)
+        float t = 0f;
+        while (t < 1f && !IsHitPlaying())
+        {
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        // ヒットアニメーションが終わるまで待つ
+        while (IsHitPlaying())
+        {
+            yield return null;
+        }
+
+        // 撃破済みなら死亡モーション(Die)を上書きしない
+        if (isDead) yield break;
+
         // ダウンアニメーション再生
         PlayAnim(aNameDown, 0.1f);
+    }
+
+    // ヒットアニメーションの再生中か(Hitへの遷移中も含む)
+    bool IsHitPlaying()
+    {
+        var cur = enemyAnimator.GetCurrentAnimatorStateInfo(0);
+        if (cur.IsName(aNameHit)) return cur.normalizedTime < 1f;
+        return enemyAnimator.IsInTransition(0) && enemyAnimator.GetNextAnimatorStateInfo(0).IsName(aNameHit);
     }
 
     IEnumerator hitDownAttack(PlayerManager pm)
@@ -422,7 +465,7 @@ public class EnemyController : MonoBehaviour
         comboManager.ComboContinues();
         Instantiate(damageEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
         // ダメージSEの再生
-        int seIndex = Random.Range(0, 2);
+        int seIndex = Random.Range(0, 3);
 
         switch (seIndex)
         {
@@ -450,13 +493,25 @@ public class EnemyController : MonoBehaviour
         // もしHPが0以下になっていたら行動ループを止める
         if (hpBar.nowHp <= 0)
         {
-            if (normalLoop != null)
-                StopCoroutine(normalLoop);
-            if (tutorialLoop != null)
-                StopCoroutine(tutorialLoop);
-            // 死亡アニメーション再生などの処理をここに入れる
-            PlayAnim(aNameDown, 0.1f);
+            Die();
         }
+    }
+
+    /// <summary>
+    /// 撃破時の処理(行動ループと実行中の攻撃を止めて死亡モーションへ)
+    /// </summary>
+    void Die()
+    {
+        if (isDead) return;
+        isDead = true;
+        // EnemyAttack.Atkは別コルーチンで動いているので、行動ループを止めるだけでは攻撃が続いてしまう
+        cancelAttack = true;
+        EnableAttackCollider(false);
+        HideAttackWarning();
+        isAttackFinished = true;
+        if (normalLoop != null) StopCoroutine(normalLoop);
+        if (tutorialLoop != null) StopCoroutine(tutorialLoop);
+        PlayAnim(aNameDown, 0.1f);
     }
 
     public void AtkEnd()

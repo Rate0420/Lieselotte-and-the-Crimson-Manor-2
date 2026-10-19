@@ -9,7 +9,7 @@ public class EnemyPostureGauge : MonoBehaviour
     public float currentPosture;                  // 現在の体勢ゲージ値
     [SerializeField] Image postureFillImage;  // 体勢ゲージImage (FillAmountで制御)
     float displayFill; // 表示上のFillAmount
-        [SerializeField] float smoothTime = 0.2f;  // FillAmount補間時間
+    [SerializeField] float smoothTime = 0.2f;  // FillAmount補間時間
     float velocity;
 
     float cost = 20f;  // デバッグ用消費量
@@ -23,15 +23,17 @@ public class EnemyPostureGauge : MonoBehaviour
 
     void Update()
     {
+#if UNITY_EDITOR
         // デバッグ消費
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             ConsumePosture(cost);
         }
-        if(Input.GetKeyDown(KeyCode.LeftAlt))
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
             RecoveryPosture(maxPosture);
         }
+#endif
 
         // FillAmountを滑らかに追従させる
         float targetFill = currentPosture / maxPosture;

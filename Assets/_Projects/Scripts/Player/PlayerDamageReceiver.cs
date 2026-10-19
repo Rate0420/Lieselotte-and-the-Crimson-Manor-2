@@ -9,6 +9,7 @@ public class PlayerDamageReceiver : MonoBehaviour
     [SerializeField] ComboManager comboManager;
     public float JustGuardTime = 0.3f; // ジャストガードの時間
     public float justguardTimer = 0f; // ジャストガードのタイマー
+    public bool enableJustGuard = true; // ジャストガード(弾き)を有効にするか。リーゼロッテはfalse、ヴェルミリオンはtrue
 
     // パリィの判定が当たった時に再生するエフェクト(ひとまずパブリックで指定)
     public GameObject parryEffect;
@@ -75,7 +76,7 @@ public class PlayerDamageReceiver : MonoBehaviour
                             if (tutorialManager.tutorialNum == 1)
                                 tutorialManager.TutorialCount();
                         // ジャストガードの判定
-                        if (justguardTimer <= JustGuardTime)
+                        if (enableJustGuard && justguardTimer <= JustGuardTime)
                         {
                             Debug.Log("Just Guard!");
                             // ジャストガード成功のエフェクトを生成
@@ -104,6 +105,8 @@ public class PlayerDamageReceiver : MonoBehaviour
                             return;
                         }
                         playerStatusManager.StaminaRend(playerStatusManager.GuardVitalityConsumption);
+                        // ガードカウンターの受付開始(リーゼロッテのみ。他キャラはplayerGuardCounterが未設定)
+                        if (playerManager.playerGuardCounter != null) playerManager.playerGuardCounter.OnGuardSuccess();
                         Debug.Log(playerStatusManager.CurrentVitality);
                         return;
                     }

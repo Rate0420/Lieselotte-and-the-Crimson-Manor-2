@@ -48,7 +48,7 @@ public class UniqueAttack : UniqueAttackBase
             psm.UA_OnOff(true);
 
             // SEçƒê∂
-            int seIndex = Random.Range(0, 2);
+            int seIndex = Random.Range(0, 3);
 
             switch (seIndex)
             {
