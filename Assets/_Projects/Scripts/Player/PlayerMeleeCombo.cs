@@ -63,6 +63,9 @@ public class PlayerMeleeCombo : MonoBehaviour
         if (playerManager.dummyFlg) yield break;
         playerManager.ComboFlg = true;
 
+        // 弾きの回数に応じたバフをこの攻撃に持たせ、カウントをリセットする(ヴェルミリオン用。いなければ等倍)
+        playerStatusManager.attackBuffRate = (playerManager.playerDeflect != null) ? playerManager.playerDeflect.ConsumeBuff() : 1f;
+
         // 攻撃速度反映
         playerManager.anim.speed = attackSpeed;
 

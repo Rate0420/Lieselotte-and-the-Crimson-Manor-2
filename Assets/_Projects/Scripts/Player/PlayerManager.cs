@@ -24,6 +24,10 @@ public class PlayerManager : MonoBehaviour
 
     public UniqueAttack uniqueAttack;
     public PlayerGuardCounter playerGuardCounter;   // リーゼロッテ専用(他キャラは未設定でOK)
+    public PlayerDeflect playerDeflect;             // ヴェルミリオン専用(弾きのカウント・バフ)
+    public PlayerEmergencyDodge playerEmergencyDodge; // ヴェルミリオン専用(緊急回避)
+
+    public bool isLiselotte;   // キャラクターフラグ(trueでガードカウンター、パリィが有効。　falseで弾き、緊急回避有効)
 
     [SerializeField] Material trailMat;
     Color changeColor;
@@ -67,6 +71,9 @@ public class PlayerManager : MonoBehaviour
     public bool ParryFlg;
     public bool UAFlg;
     public bool GuardCounterFlg;
+    public bool DodgeFlg;
+    public bool canParry = true;   // パリィを使えるか(ヴェルミリオンはfalse)
+    public Coroutine uniqueAttackCoroutine;   // 実行中の戦技(UniqueAttack.Attackが入れる)
 
     public bool SkillFlg;
     public bool UltFlg;
@@ -131,7 +138,7 @@ public class PlayerManager : MonoBehaviour
 
         if (!dummyFlg)
         {
-            if (ComboFlg || GuardFlg || GB_AttackFlg || UltFlg || GameEndFlg || ParryFlg || UAFlg || GuardCounterFlg) return;
+            if (ComboFlg || GuardFlg || GB_AttackFlg || UltFlg || GameEndFlg || ParryFlg || UAFlg || GuardCounterFlg || DodgeFlg) return;
             dir = new Vector3(moveInput.x, 0, moveInput.y);
         }
 
@@ -204,7 +211,7 @@ public class PlayerManager : MonoBehaviour
 
     public void ParryAction(InputAction.CallbackContext context)
     {
-        if (CheckAllFlgisOff())
+        if (isLiselotte && CheckAllFlgisOff())
         {
             Vector2 parryDir = context.ReadValue<Vector2>();
             // 入力が小さい場合は無視（スティックの遊び対策）
@@ -245,29 +252,24 @@ public class PlayerManager : MonoBehaviour
     }
 
 
+    // 緊急回避(ヴェルミリオン)
+    public void DodgeAction(InputAction.CallbackContext context)
+    {
+        Debug.Log("ドッジ");
+        if (!context.performed) return;
+        if (playerEmergencyDodge != null) playerEmergencyDodge.Dodge();
+    }
+
     // 近接攻撃
     public void MeleeAttack(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Performed)
-        {
-            Debug.Log("ぱふぉーむど");
-        }
-        if (GuardFlg)
-        { 
-            Debug.Log("ガード中");
-        }
-        if(playerGuardCounter.CanCounter)
-        {
-            Debug.Log("カウンター受付中");
-        }
         // ガード中で、被弾直後(カウンター受付時間内)なら、通常攻撃ではなくガードカウンターを出す
         if (context.phase == InputActionPhase.Performed && GuardFlg && playerGuardCounter != null && playerGuardCounter.CanCounter)
         {
-            Debug.Log("ガードカウンター発動");
             playerGuardCounter.Counter();
             return;
         }
-        if (!GuardFlg && !GB_AttackFlg && !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && !GuardCounterFlg && context.phase == InputActionPhase.Performed)
+        if (!GuardFlg && !GB_AttackFlg && !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && !GuardCounterFlg && !DodgeFlg && context.phase == InputActionPhase.Performed)
             playerMeleeCombo.MeleeCombo();
     }
     // ガード関連
@@ -327,10 +329,18 @@ public class PlayerManager : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// ニュートラル状態か(ガード中・被弾中・ダウン中ではない)。スタミナの自然回復の条件に使う
+    /// </summary>
+    public bool IsNeutral
+    {
+        get { return !GuardFlg && !GetDamageFlg && !DownFlg && !ComboFlg; }
+    }
+
     bool CheckAllFlgisOff()
     {
         return !ComboFlg && !GuardFlg && !GB_AttackFlg &&
-               !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && !GuardCounterFlg;
+               !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && !GuardCounterFlg && !DodgeFlg;
     }
 
     public void OnDamage(int damageDir, bool down = false, Transform attacker = null)
@@ -370,6 +380,35 @@ public class PlayerManager : MonoBehaviour
         player_GB_Attack.Stop();
         playerParry.Stop();
         if (playerGuardCounter != null) playerGuardCounter.Stop();
+        CancelUniqueAttack();
+    }
+
+    /// <summary>
+    /// 戦技(UniqueAttack)を中断する。UniqueAttackはPlayerStatusManager上のコルーチンで動いている
+    /// </summary>
+    void CancelUniqueAttack()
+    {
+        if (uniqueAttackCoroutine == null) return;
+        playerStatusManager.StopCoroutine(uniqueAttackCoroutine);
+        uniqueAttackCoroutine = null;
+        UAFlg = false;
+        playerStatusManager.UA_OnOff(false);
+        if (playerStatusManager.nowAtkState == "UniqueAttack") playerStatusManager.nowAtkState = "";
+        comboManager.comboTimerFlg = true;   // 戦技の冒頭で止めたコンボタイマーを戻す
+        ChangeColorTrail(Color.white);
+    }
+
+    /// <summary>
+    /// 被弾モーション(のけぞり)を中断して操作できる状態に戻す。緊急回避で使う
+    /// </summary>
+    public void CancelHitReaction()
+    {
+        if (hitCoroutine != null)
+        {
+            StopCoroutine(hitCoroutine);
+            hitCoroutine = null;
+        }
+        GetDamageFlg = false;
     }
 
     IEnumerator Hit(int dir)

@@ -67,6 +67,9 @@ public class PlayerStatusManager : MonoBehaviour
     // 初撃ダメージ補正
     public float firstAtkDmgRate = 1f;
 
+    // 今の攻撃に掛かるダメージ倍率(弾きのバフ)。攻撃を出すときに設定され、EnemyControllerが被弾時に掛ける
+    public float attackBuffRate = 1f;
+
     public float parryStamina;
 
     public WeaponInstance weaponInstance;   // 武器のインスタンス情報(後々static状態の現在装備中のインスタンスをここに入れるor読み込む)

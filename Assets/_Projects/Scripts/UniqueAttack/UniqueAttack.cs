@@ -22,7 +22,10 @@ public class UniqueAttack : UniqueAttackBase
         if (psm.playerManager.comboManager.UniqueCombo >= UA_condition)
         {
             psm.playerManager.UAFlg = true;
-            psm.StartCoroutine(Atk(psm));
+            // 弾きの回数に応じたバフをこの攻撃に持たせ、カウントをリセットする(ヴェルミリオン用。いなければ等倍)
+            psm.attackBuffRate = (psm.playerManager.playerDeflect != null) ? psm.playerManager.playerDeflect.ConsumeBuff() : 1f;
+            // 緊急回避などで中断できるよう、コルーチンをPlayerManagerに持たせる
+            psm.playerManager.uniqueAttackCoroutine = psm.StartCoroutine(Atk(psm));
             // 発動したのでコンボ数をリセット
             psm.playerManager.comboManager.ResetUniqueCombo();
         }
@@ -76,5 +79,6 @@ public class UniqueAttack : UniqueAttackBase
         psm.playerManager.comboManager.comboTimerFlg = true;
         psm.playerManager.GiveInvincible(invincibleTime);
         psm.playerManager.ChangeColorTrail(Color.white);
+        psm.playerManager.uniqueAttackCoroutine = null;
     }
 }

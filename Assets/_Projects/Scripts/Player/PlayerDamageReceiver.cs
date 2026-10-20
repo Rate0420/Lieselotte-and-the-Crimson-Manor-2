@@ -76,9 +76,11 @@ public class PlayerDamageReceiver : MonoBehaviour
                             if (tutorialManager.tutorialNum == 1)
                                 tutorialManager.TutorialCount();
                         // ジャストガードの判定
-                        if (enableJustGuard && justguardTimer <= JustGuardTime)
+                        if (!playerManager.isLiselotte && justguardTimer <= JustGuardTime)
                         {
                             Debug.Log("Just Guard!");
+                            // 弾き: 敵の体勢を削り、弾き回数を数える(ヴェルミリオン)
+                            if (playerManager.playerDeflect != null) playerManager.playerDeflect.OnDeflect(enemyController);
                             // ジャストガード成功のエフェクトを生成
                             Instantiate(parryEffect, parryEffectPos.position, Quaternion.identity);
                             // チュートリアル
@@ -137,6 +139,9 @@ public class PlayerDamageReceiver : MonoBehaviour
 
         // 無敵中・ダウン中はダメージを受けない(PlayerManager.OnDamageと条件を揃える)
         if (playerManager.mutekiFlg || playerManager.DownFlg) return;
+
+        // 被弾したら弾きのカウントをリセット
+        if (playerManager.playerDeflect != null) playerManager.playerDeflect.ResetCount();
 
         // SE再生
         // ダメージSEの再生

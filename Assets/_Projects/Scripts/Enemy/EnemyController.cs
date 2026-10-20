@@ -365,8 +365,8 @@ public class EnemyController : MonoBehaviour
             switch (psm.nowAtkState)
             {
                 case "MeleeCombo":
-                    if (psm.playerMeleeCombo.isFirstAttack) hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.firstAtkDmgRate));
-                    else hpBar.ApplyDamage(psm.MeleeAtk);
+                    if (psm.playerMeleeCombo.isFirstAttack) hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.firstAtkDmgRate * psm.attackBuffRate));
+                    else hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.attackBuffRate));
                     comboManager.ComboContinues();
                     if (tutorialManager != null)
                         if (tutorialManager.tutorialNum == 0)
@@ -375,7 +375,7 @@ public class EnemyController : MonoBehaviour
 
                     break;
                 case "MeleeComboFinish":
-                    hpBar.ApplyDamage(psm.MeleeAtk);
+                    hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.attackBuffRate));
                     comboManager.ComboContinues();
                     if (tutorialManager != null)
                         if (tutorialManager.tutorialNum == 0)
@@ -387,7 +387,7 @@ public class EnemyController : MonoBehaviour
                     comboManager.ComboContinues();
                     break;
                 case "UniqueAttack":
-                    hpBar.ApplyDamage(psm.UniqueAttack);
+                    hpBar.ApplyDamage(Mathf.FloorToInt(psm.UniqueAttack * psm.attackBuffRate));
                     if (tutorialManager != null)
                         if (tutorialManager.tutorialNum == 4)
                             tutorialManager.TutorialCount();
