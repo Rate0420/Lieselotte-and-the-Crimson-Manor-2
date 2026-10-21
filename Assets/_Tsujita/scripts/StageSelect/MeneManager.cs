@@ -29,6 +29,7 @@ public class MeneManager : MonoBehaviour
 
     public void Awake()
     {
+        inventory = WeaponInventory.Instance;
         inventory.LoadInventory();
     }
 

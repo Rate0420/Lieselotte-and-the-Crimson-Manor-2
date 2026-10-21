@@ -13,6 +13,7 @@ public class WeaponInventory : MonoBehaviour
     public WeaponTemplate sword_ShieldTemplate;
     public WeaponTemplate greatswordTemplate;
     public WeaponTemplate rapierTemplate;
+    public WeaponTemplate vermilion_TestTemplate;
 
     // 付呪データベース（初期付呪用）
     [SerializeField]  public Enchantment defaultEnchantmentDB;
@@ -226,6 +227,15 @@ public class WeaponInventory : MonoBehaviour
         if (sword_ShieldTemplate.weaponName == id) return sword_ShieldTemplate;
         if (greatswordTemplate.weaponName == id) return greatswordTemplate;
         if (rapierTemplate.weaponName == id) return rapierTemplate;
+        Debug.Log(id);
+        Debug.Log(vermilion_TestTemplate.weaponName);
+        if (vermilion_TestTemplate.weaponName == id)
+        {
+            Debug.Log("vermilion_TestTemplateを取得");
+            Debug.Log(id);
+            Debug.Log(vermilion_TestTemplate.weaponName);
+            return vermilion_TestTemplate;
+        } 
         return null;
     }
 
@@ -237,5 +247,18 @@ public class WeaponInventory : MonoBehaviour
         weapons.Clear();
         SaveInventory();
         OnInventoryChanged?.Invoke();
+    }
+
+    private void Update()
+    {
+        // テスト用：Mキーでvermilion_TestTemplateの武器を追加
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            var instance = new WeaponInstance(
+                vermilion_TestTemplate,
+                defaultEnchantmentDB
+            );
+            AddWeapon(instance);
+        }
     }
 }

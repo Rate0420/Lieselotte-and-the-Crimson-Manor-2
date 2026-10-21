@@ -122,6 +122,8 @@ public class PlayerStatusManager : MonoBehaviour
         MeleeBox.transform.position += weaponInstance.weaponTemplate.CharacterMotionSet.AttackColliderPosition;
 
         // プレイヤーのanimにtemplateのanimatorControllerを入れる
+
+
         playerManager.anim.runtimeAnimatorController = weaponInstance.weaponTemplate.CharacterMotionSet.AnimatorController;
         // 未完成部分もあるので注意(モーションなど)
 
@@ -136,17 +138,20 @@ public class PlayerStatusManager : MonoBehaviour
         CurrentHp = MaxHp;
 
         // 武器の見た目を変える
-        for (int i = 0; i < WeaponObjects.Length; i++)
-        {
-            if (i == (int)weaponInstance.WeaponType)
+
+
+
+            for (int i = 0; i < WeaponObjects.Length; i++)
             {
-                WeaponObjects[i].SetActive(true);
+                if (i == (int)weaponInstance.WeaponType)
+                {
+                    WeaponObjects[i].SetActive(true);
+                }
+                else
+                {
+                    WeaponObjects[i].SetActive(false);
+                }
             }
-            else
-            {
-                WeaponObjects[i].SetActive(false);
-            }
-        }
 
         playerManager.uniqueAttack = weaponInstance.weaponTemplate.UniqueAttack;
 
@@ -179,8 +184,12 @@ public class PlayerStatusManager : MonoBehaviour
         ComboResetTime = characterData.ComboResetTime;
 
         GB_AttackTime = characterData.GB_AttackTime;
-        //comboMotionTimes = characterData.ComboMotionTimes;
-        //comboColOffset = characterData.ComboColOffset;
+        comboMotionTimes = characterData.ComboMotionTimes;
+        comboColOffset = characterData.ComboColOffset;
+
+
+
+
         GBColOffset = characterData.GBColOffset;
 
         // ダメージ系
@@ -214,6 +223,7 @@ public class PlayerStatusManager : MonoBehaviour
         }
 
         // ここまできたらステータスの設定系が完了したってことだからここでGM的なのを呼んでゲーム開始した方がいいかも
+
     }
 
     public void MeleeAtkOnOff(bool f)
