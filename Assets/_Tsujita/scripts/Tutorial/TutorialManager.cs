@@ -71,6 +71,13 @@ public class TutorialManager : MonoBehaviour
                     TutorialVelmilion();
                 break;
             case 5:
+                tutorialText.text = "サポートキャラを使おう";
+                tutorialGUI.text = "X or Y";
+                exprainText.text = "戦闘でそれぞれ1回だけ使える\r\n様々なバフを使いこなせ！";
+                TextChenge();
+                enemyController.tutorialState = EnemyController.TutorialState.Attack1;
+                break;
+            case 6:
                 tutorialText.text = "敵を倒そう";
                 tutorialGUI.text = "";
                 exprainText.text = "";
@@ -83,7 +90,7 @@ public class TutorialManager : MonoBehaviour
                     isTutorialCompleted = true;
                 }
                 break;
-            case 6:
+            case 7:
                 Debug.Log("チュートリアル終了");
                 // チュートリアル終了処理
                 if (!isloadead)
