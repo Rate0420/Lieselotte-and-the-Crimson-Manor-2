@@ -6172,6 +6172,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 734950503956266470, guid: 3dd7a082fa51f6b4589060b2e23b69b9, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 5c9639231b9884c4987a8eff127a58b9, type: 2}
+    - target: {fileID: 734950503956266470, guid: 3dd7a082fa51f6b4589060b2e23b69b9, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
       objectReference: {fileID: 0}
@@ -6180,9 +6184,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1393856063}
     - target: {fileID: 3685557769139378013, guid: 3dd7a082fa51f6b4589060b2e23b69b9, type: 3}
+      propertyPath: isLiselotte
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3685557769139378013, guid: 3dd7a082fa51f6b4589060b2e23b69b9, type: 3}
       propertyPath: comboManager
       value: 
       objectReference: {fileID: 1393856063}
+    - target: {fileID: 5118584717232415512, guid: 3dd7a082fa51f6b4589060b2e23b69b9, type: 3}
+      propertyPath: dodgeEffect
+      value: 
+      objectReference: {fileID: 100002, guid: 943b25d8ccaf2004ba60ccb6db49b86a, type: 3}
     - target: {fileID: 5425976468032940890, guid: 3dd7a082fa51f6b4589060b2e23b69b9, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -6779,13 +6791,25 @@ PrefabInstance:
       value: TestInventry
       objectReference: {fileID: 0}
     - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
+      propertyPath: equipmentIndex
+      value: 48
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
       propertyPath: rapierTemplate
       value: 
       objectReference: {fileID: 11400000, guid: 7aefa3628f80f5440bf4d272c9d35b03, type: 2}
     - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
+      propertyPath: vermilionTestMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
       propertyPath: greatswordTemplate
       value: 
       objectReference: {fileID: 11400000, guid: 2854d0f2d123f6d43b758db15b94eff5, type: 2}
+    - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
+      propertyPath: vermilion_TestTemplate
+      value: 
+      objectReference: {fileID: 11400000, guid: 7da5d6ff2b6bf8644947b5f09709da38, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
