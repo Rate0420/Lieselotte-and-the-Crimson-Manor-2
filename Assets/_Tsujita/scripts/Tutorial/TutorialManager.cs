@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static CharaSaveManager;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -36,6 +37,9 @@ public class TutorialManager : MonoBehaviour
     {
         Instance = this;
         SoundManager.Instance.PlayBGM("Werewolf Warrior");
+        CharacterType selectedCharacter =
+            CharaSaveManager.Instance.GetSelectedCharacter();
+        Debug.Log("選択キャラ" +  selectedCharacter);
     }
 
     private void Update()
@@ -59,25 +63,12 @@ public class TutorialManager : MonoBehaviour
                 enemyController.tutorialState = EnemyController.TutorialState.Attack1;
                 break;
             case 2:
-                tutorialText.text = "ジャスガを成功させる";
-                tutorialGUI.text = "LB(L1)";
-                exprainText.text = "【タイミング】を合わせてガード！\r\nスタミナの消費０・コンボ継続\r\n";
-                isGuardFlg = true;
-                TextChenge();
-                break;
             case 3:
-                tutorialText.text = "パリィを成功させる";
-                tutorialGUI.text = "右スティック";
-                exprainText.text = "敵の攻撃に【タイミング・向き】を\r\n合わせてパリィ！";
-                isGuardFlg = false;
-                TextChenge();
-                break;
             case 4:
-                tutorialText.text = "戦技を成功させる";
-                tutorialGUI.text = "RT(R2)";
-                exprainText.text = "攻撃・パリィでコンボを増やす\r\n10コンボ以上で【戦技】を使えるぞ！";
-                TextChenge();
-                enemyController.tutorialState = EnemyController.TutorialState.Move;
+                if (CharaSaveManager.Instance.GetSelectedCharacter() == CharacterType.Liselotte)
+                    TutorialLiselotte();
+                else
+                    TutorialVelmilion();
                 break;
             case 5:
                 tutorialText.text = "敵を倒そう";
@@ -109,6 +100,68 @@ public class TutorialManager : MonoBehaviour
         {
             TutorialEnemyHpTimer = 0;
             enemyController.hpBar.nowHp = enemyController.hpBar.maxHp;
+        }
+    }
+
+    /// <summary>
+    /// リーゼロッテ用チュートリアル
+    /// </summary>
+    private void TutorialLiselotte()
+    {
+        switch (tutorialNum)
+        {
+            case 2:
+                tutorialText.text = "パリィを成功させる";
+                tutorialGUI.text = "右スティック";
+                exprainText.text = "敵の攻撃に【タイミング・向き】を\r\n合わせてパリィ！";
+                isGuardFlg = false;
+                TextChenge();
+                break;
+            case 3:
+                tutorialText.text = "ガードカウンターを成功させる";
+                tutorialGUI.text = "LB(L1)→LT(L2)";
+                exprainText.text = "ガード成功後\rLT(L2)でカウンター！";
+                isGuardFlg = false;
+                TextChenge();
+                break;
+            case 4:
+                tutorialText.text = "戦技を成功させる";
+                tutorialGUI.text = "RT(R2)";
+                exprainText.text = "攻撃・パリィでコンボを増やす\r\n10コンボ以上で【戦技】を使えるぞ！";
+                TextChenge();
+                enemyController.tutorialState = EnemyController.TutorialState.Move;
+                break;
+            }
+        }
+
+        /// <summary>
+        /// ヴェルミリオン専用チュートリアル
+        /// </summary>
+        private void TutorialVelmilion()
+    {
+        switch (tutorialNum)
+        {
+            case 2:
+                tutorialText.text = "ジャスガを成功させる";
+                tutorialGUI.text = "LB(L1)";
+                exprainText.text = "【タイミング】を合わせてガード！\r\nスタミナの消費０・コンボ継続\r\n";
+                isGuardFlg = true;
+                TextChenge();
+                break;
+            case 3:
+                tutorialText.text = "緊急回避を成功させる";
+                tutorialGUI.text = "LT(L2)";
+                exprainText.text = "被弾中でも発動可能\r\n迷ったら使おう！";
+                isGuardFlg = false;
+                TextChenge();
+                break;
+            case 4:
+                tutorialText.text = "戦技を成功させる";
+                tutorialGUI.text = "RT(R2)";
+                exprainText.text = "攻撃・パリィでコンボを増やす\r\n10コンボ以上で【戦技】を使えるぞ！";
+                TextChenge();
+                enemyController.tutorialState = EnemyController.TutorialState.Move;
+                break;
         }
     }
 
