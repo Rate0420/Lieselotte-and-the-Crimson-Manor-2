@@ -201,6 +201,8 @@ public class WeaponInstance
 public class EnchantmentSlot
 {
     public EnchantmentDataBase.EnchantmentName enchantName;
+
+
     [Range(1, 11)] public int enchantLevel; // 0 = Lv1
 
     public EnchantmentSlot(EnchantmentDataBase.EnchantmentName name, int level )

@@ -89,7 +89,7 @@ public class MeneManager : MonoBehaviour
         startPanel.SetActive(false);
         synthesisPanel.SetActive(true);
         _panelFlg = false;
-        soundPush.DecisionPush();
+        //soundPush.DecisionPush();
     }
 
     // ‹Ù‹}

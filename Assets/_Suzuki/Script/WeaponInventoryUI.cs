@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class WeaponInventoryUI : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class WeaponInventoryUI : MonoBehaviour
     [Header("•ŠíÚ×UI")]
     [SerializeField] private RawImage selectedWeaponIcon;
     [SerializeField] private Text descriptionText;
-    [SerializeField] private Text[] enchantmentTexts;
+    [SerializeField] private TMP_Text[] enchantmentTexts;
 
     [SerializeField] private RawImage equipmentWeaponIcon;
     [SerializeField] private Text[] equipmentEnchantmentTexts;

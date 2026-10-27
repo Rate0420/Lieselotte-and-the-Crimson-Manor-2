@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using Unity.VisualScripting;
 
 [CreateAssetMenu(fileName = "Enchantment", menuName = "Enchantment")]
 public class Enchantment : ScriptableObject
@@ -28,9 +29,12 @@ public class EnchantmentDataBase
         ‚È‚µ
     }
 
+
+
     [Header("Œø‰Ê‚Ì–¼‘O")]
     public EnchantmentName Name;
-    
+   
+
     [Header("Œø—Í(%)(Lv)")]
     public float[] Efficacy;
 }
