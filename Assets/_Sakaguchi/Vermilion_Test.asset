@@ -35,8 +35,8 @@ MonoBehaviour:
   CharacterMotionSet:
     AnimatorController: {fileID: 9100000, guid: bb6f7835e6ce1724c8c3084a7e3edcad, type: 2}
     AttackMotionTimes:
-    - 0.6
-    - 1.3
+    - 0.4
+    - 1.2
     - 0.5
     - 1
     AttackColliderTiming:
@@ -54,8 +54,8 @@ MonoBehaviour:
     - 0.3
   - hitTimes:
     - 0.5
-    - 1
+    - 0.9
   - hitTimes:
-    - 0.3
+    - 0.25
   - hitTimes:
     - 0.3

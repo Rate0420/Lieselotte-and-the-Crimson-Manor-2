@@ -26,6 +26,8 @@ public class WeaponInventory : MonoBehaviour
 
     public int equipmentIndex = 0;
 
+    public bool vermilionTestMode = false;    
+
     string SavePath => Application.persistentDataPath + "/inventory.json";
 
     /// <summary>
@@ -62,14 +64,33 @@ public class WeaponInventory : MonoBehaviour
         LoadInventory();
         if (weapons.Count == 0)
         {
-            var instance = new WeaponInstance(
+            if (vermilionTestMode)
+            {
+                var instance = new WeaponInstance(
+                    vermilion_TestTemplate,
+                    defaultEnchantmentDB
+                );
+                AddWeapon(instance);
+                weapons[0] = instance;
+            }
+            else
+            {
+                var instance = new WeaponInstance(
                 sword_ShieldTemplate,
                 defaultEnchantmentDB
             );
-            AddWeapon(instance);
+                AddWeapon(instance);
+            }
+            SaveInventory();
         }
-        SaveInventory();
-
+        else if (vermilionTestMode)
+        {
+            var instance = new WeaponInstance(
+    vermilion_TestTemplate,
+    defaultEnchantmentDB
+);
+            weapons[0] = instance;
+        }
     }
 
     public void startAddWeapon()

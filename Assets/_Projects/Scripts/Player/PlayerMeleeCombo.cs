@@ -24,7 +24,7 @@ public class PlayerMeleeCombo : MonoBehaviour
     public HitTiming[] comboHitData;
 
     // 仮システム
-    float ColResetTime = 0.1f;
+    float ColResetTime = 0.05f;
 
     public PlayerStatusManager playerStatusManager;
 
@@ -90,7 +90,7 @@ public class PlayerMeleeCombo : MonoBehaviour
 
         //// ダメージ判定が終わる時間
         //float hitEnd = comboColOffset[comboStep] + ColResetTime;
-        Debug.Log("コンボステップ: " + comboStep + ", アニメーション時間: " + comboColOffset[comboStep]);
+        //Debug.Log("コンボステップ: " + comboStep + ", アニメーション時間: " + comboColOffset[comboStep]);
 
         while (comboTimer < animTimes[comboStep])
         {

@@ -139,8 +139,10 @@ public class PlayerStatusManager : MonoBehaviour
 
         // 武器の見た目を変える
 
+        // ヴェルミリオンテスト用でヴェルミリオンだったら飛ばす
 
-
+        if (playerManager.isLiselotte)
+        {
             for (int i = 0; i < WeaponObjects.Length; i++)
             {
                 if (i == (int)weaponInstance.WeaponType)
@@ -152,6 +154,7 @@ public class PlayerStatusManager : MonoBehaviour
                     WeaponObjects[i].SetActive(false);
                 }
             }
+        }
 
         playerManager.uniqueAttack = weaponInstance.weaponTemplate.UniqueAttack;
 
