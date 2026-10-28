@@ -173,7 +173,7 @@ public class WeaponInventoryUI : MonoBehaviour
             if (!gameObject.activeInHierarchy) return;
             Debug.Log("戻るボタンが押されました");
             // 一つ上の親オブジェクトのsetActiveをfalseにする
-            transform.parent.gameObject.SetActive(false);
+            transform.gameObject.SetActive(false);
             soundPush.CancelPush();
             panel.SetActive(true);
             StageSelectMenu.SetActive(false);

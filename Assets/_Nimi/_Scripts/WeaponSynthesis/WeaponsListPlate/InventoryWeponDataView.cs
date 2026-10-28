@@ -2,22 +2,26 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class InventoryWeponDataView : MonoBehaviour
 {
     [Header("武器情報")]
-    [SerializeField] private Image _iconImage;
+    [SerializeField] private UnityEngine.UI.Image _iconImage;
 
     [Header("付呪表示")]
     [SerializeField] private TMP_Text[] _enchantmentTexts = new TMP_Text[3];
 
     [Header("選択表示")]
     [SerializeField] private GameObject _selectedPlane;
+    [SerializeField] private UnityEngine.UI.Image _highlightImage;
     [SerializeField] private TMP_Text _selectedText;
-    [SerializeField] private Toggle _selectedToggle;
+    [SerializeField] private UnityEngine.UI.Toggle _selectedToggle;
 
-    public event Action OnSelectClicked;
+    public UnityEngine.UI.Selectable Selectable => _selectedToggle;
+
+    public event Action<InventoryWeponDataView> OnSelectClicked;
     private bool _isUpdatingToggle;
 
     private void Awake()
@@ -26,13 +30,33 @@ public class InventoryWeponDataView : MonoBehaviour
 
         if (_selectedToggle != null)
         {
+            _selectedToggle.transition = UnityEngine.UI.Selectable.Transition.None;
             _selectedToggle.onValueChanged.AddListener(isSelected =>
             {
                 if (_isUpdatingToggle) return;
 
-                OnSelectClicked?.Invoke();
+                OnSelectClicked?.Invoke(this);
             });
         }
+
+        if (_highlightImage != null) _highlightImage.raycastTarget = false;
+    }
+
+    private void LateUpdate()
+    {
+        UpdateHighlight();
+    }
+
+    private void OnDisable()
+    {
+        if (_highlightImage != null) _highlightImage.enabled = false;
+    }
+
+    private void UpdateHighlight()
+    {
+        if (_highlightImage == null) return;
+        _highlightImage.enabled = _selectedToggle != null && _selectedToggle.IsInteractable() &&
+            EventSystem.current != null && EventSystem.current.currentSelectedGameObject == _selectedToggle.gameObject;
     }
 
     public void SetUpData(Sprite icon, List<string> enchantments)
@@ -89,10 +113,17 @@ public class InventoryWeponDataView : MonoBehaviour
         {
             _selectedText.text = string.Empty;
         }
+
+        UpdateHighlight();
     }
 
 
     public void Selection(int index)
+    {
+        Selection($"素材 {index}");
+    }
+
+    public void Selection(string label)
     {
         SetToggleWithoutEvent(true);
 
@@ -103,7 +134,7 @@ public class InventoryWeponDataView : MonoBehaviour
 
         if (_selectedText != null)
         {
-            _selectedText.text = $"素材 {index}";
+            _selectedText.text = label;
         }
     }
 

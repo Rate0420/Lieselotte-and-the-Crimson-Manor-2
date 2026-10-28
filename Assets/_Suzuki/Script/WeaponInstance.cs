@@ -203,12 +203,12 @@ public class EnchantmentSlot
     public EnchantmentDataBase.EnchantmentName enchantName;
 
 
-    [Range(1, 11)] public int enchantLevel; // 0 = Lv1
+    [Min(1)] public int enchantLevel; // Lv1以上。上限は設けない。
 
     public EnchantmentSlot(EnchantmentDataBase.EnchantmentName name, int level )
     {
         enchantName = name;
-        enchantLevel = Mathf.Clamp(level, 1, 11);
+        enchantLevel = Mathf.Max(1, level);
     }
 
     /// <summary>

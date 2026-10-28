@@ -18,6 +18,7 @@ public class WeaponInventory : MonoBehaviour
     [SerializeField]  public Enchantment defaultEnchantmentDB;
 
     public event Action OnInventoryChanged;
+    public event Action OnEquipmentChanged;
 
     public static WeaponInventory Instance { get; private set; }
 
@@ -25,7 +26,7 @@ public class WeaponInventory : MonoBehaviour
 
     public int equipmentIndex = 0;
 
-    string SavePath => Application.persistentDataPath + "/inventory.json";
+    protected virtual string SavePath => Application.persistentDataPath + "/inventory.json";
 
     /// <summary>
     /// シーンを跨いでもインベントリの中身を扱えるようにする
@@ -105,6 +106,64 @@ public class WeaponInventory : MonoBehaviour
             return false;
 
         weapons.RemoveAt(weaponIndex);
+        if (equipmentIndex > weaponIndex) equipmentIndex--;
+        else if (equipmentIndex == weaponIndex) equipmentIndex = Mathf.Min(weaponIndex, Mathf.Max(0, weapons.Count - 1));
+        OnInventoryChanged?.Invoke();
+        return true;
+    }
+
+    public bool TryEquipWeapon(WeaponInstance weapon)
+    {
+        int index = weapon != null ? weapons.IndexOf(weapon) : -1;
+        if (index < 0) return false;
+        if (index == equipmentIndex) return true;
+        int previous = equipmentIndex;
+        equipmentIndex = index;
+        try
+        {
+            SaveInventory();
+        }
+        catch (Exception exception) when (exception is System.IO.IOException || exception is UnauthorizedAccessException)
+        {
+            equipmentIndex = previous;
+            Debug.LogError($"装備状態の保存に失敗しました: {exception.Message}", this);
+            return false;
+        }
+        OnEquipmentChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>合成素材2本を完成品1本へ入れ替え、保存後に一度だけUIへ通知する。</summary>
+    public bool TryReplaceWeapons(WeaponInstance first, WeaponInstance second, WeaponInstance result)
+    {
+        if (first == null || second == null || first == second || result == null ||
+            result.weaponTemplate == null || weapons.Contains(result)) return false;
+        int firstIndex = weapons.IndexOf(first);
+        int secondIndex = weapons.IndexOf(second);
+        if (firstIndex < 0 || secondIndex < 0) return false;
+
+        var previousWeapons = new List<WeaponInstance>(weapons);
+        int previousEquipmentIndex = equipmentIndex;
+        var equipped = GetWeapon(equipmentIndex);
+        weapons.RemoveAt(Mathf.Max(firstIndex, secondIndex));
+        weapons.RemoveAt(Mathf.Min(firstIndex, secondIndex));
+        weapons.Add(result);
+        // 素材を装備していた場合は完成品、それ以外なら同じ武器を装備し続ける。
+        equipmentIndex = equipped == first || equipped == second
+            ? weapons.Count - 1 : Mathf.Max(0, weapons.IndexOf(equipped));
+        try
+        {
+            SaveInventory();
+        }
+        catch (Exception exception) when (exception is System.IO.IOException ||
+                                          exception is UnauthorizedAccessException)
+        {
+            weapons.Clear();
+            weapons.AddRange(previousWeapons);
+            equipmentIndex = previousEquipmentIndex;
+            Debug.LogError($"武器合成の保存に失敗しました: {exception.Message}", this);
+            return false;
+        }
         OnInventoryChanged?.Invoke();
         return true;
     }
@@ -167,6 +226,7 @@ public class WeaponInventory : MonoBehaviour
     public void SaveInventory()
     {
         InventorySaveData save = new();
+        save.equipmentIndex = Mathf.Clamp(equipmentIndex, 0, Mathf.Max(0, weapons.Count - 1));
 
         foreach (var weapon in weapons)
         {
@@ -218,6 +278,7 @@ public class WeaponInventory : MonoBehaviour
             instance.SetEnchantments(slots.ToArray());
             weapons.Add(instance);
         }
+        equipmentIndex = Mathf.Clamp(save.equipmentIndex, 0, Mathf.Max(0, weapons.Count - 1));
         Debug.Log("ロード");
     }
 
@@ -235,6 +296,7 @@ public class WeaponInventory : MonoBehaviour
     public void ClearAllWeapons()
     {
         weapons.Clear();
+        equipmentIndex = 0;
         SaveInventory();
         OnInventoryChanged?.Invoke();
     }
