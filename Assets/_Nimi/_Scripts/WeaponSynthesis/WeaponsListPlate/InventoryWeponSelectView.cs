@@ -19,6 +19,9 @@ public class InventoryWeponSelectView : MonoBehaviour
     [SerializeField] private GameObject _screenRoot;
     [SerializeField] private TMP_Text _instructionText;
     [SerializeField, Min(0f)] private float _scrollVisibilityMargin = 8f;
+    [Header("合成結果")]
+    [SerializeField] private WeaponSynthesisResultView _resultView;
+    [SerializeField] private CanvasGroup _selectionGroup;
     [Header("デバッグ設定")]
     [SerializeField] private bool _randomSynthesisOnStart;
 
@@ -33,6 +36,8 @@ public class InventoryWeponSelectView : MonoBehaviour
     private Coroutine _focusCoroutine;
     private bool _initialized;
     private bool _selectingEnchantments;
+    private bool _synthesizing;
+    private WeaponInstance _resultWeapon;
     private int _openedFrame;
     private const int MaxSelectCount = 2;
 
@@ -43,6 +48,11 @@ public class InventoryWeponSelectView : MonoBehaviour
         _previousEnchantPageAction = new InputAction("SynthesisPreviousPage", InputActionType.Button, "<Gamepad>/leftShoulder");
         _nextEnchantPageAction = new InputAction("SynthesisNextPage", InputActionType.Button, "<Gamepad>/rightShoulder");
         if (_enchantSelectionPanel != null) _enchantSelectionPanel.PageChanged += OnEnchantPageChanged;
+        if (_resultView != null)
+        {
+            _resultView.ChoiceSubmitted += OnResultChoiceSubmitted;
+            _resultView.Hide();
+        }
         if (_screenRoot == null)
         {
             var canvas = GetComponentInParent<Canvas>();
@@ -78,6 +88,9 @@ public class InventoryWeponSelectView : MonoBehaviour
         if (_inventory != null) _inventory.OnInventoryChanged -= OnInventoryChanged;
         if (_focusCoroutine != null) StopCoroutine(_focusCoroutine);
         _focusCoroutine = null;
+        if (_resultView != null) _resultView.Hide();
+        _resultWeapon = null;
+        SetSelectionInteraction(true);
         var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
         if (selected != null && _screenRoot != null && selected.transform.IsChildOf(_screenRoot.transform))
             EventSystem.current.SetSelectedGameObject(null);
@@ -90,6 +103,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         _previousEnchantPageAction?.Dispose();
         _nextEnchantPageAction?.Dispose();
         if (_enchantSelectionPanel != null) _enchantSelectionPanel.PageChanged -= OnEnchantPageChanged;
+        if (_resultView != null) _resultView.ChoiceSubmitted -= OnResultChoiceSubmitted;
     }
 
     /// <summary>所持武器変更の通知を登録し、武器選択から合成画面を開始する。</summary>
@@ -112,6 +126,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         // Menuから画面を開いた入力が、そのまま合成や戻る操作として使われるのを防ぐ。
         if (!_initialized || Time.frameCount == _openedFrame) return;
         if (_backAction.WasPerformedThisFrame()) Back();
+        else if (_resultView != null && _resultView.IsOpen) return;
         else if (_synthesisAction.WasPerformedThisFrame()) TrySynthesize();
         else if (_selectingEnchantments && _previousEnchantPageAction.WasPerformedThisFrame()) _enchantSelectionPanel.ChangePage(-1);
         else if (_selectingEnchantments && _nextEnchantPageAction.WasPerformedThisFrame()) _enchantSelectionPanel.ChangePage(1);
@@ -126,6 +141,12 @@ public class InventoryWeponSelectView : MonoBehaviour
     {
         if (!_initialized || _inventory == null || EventSystem.current == null || _focusCoroutine != null) return;
         var selected = EventSystem.current.currentSelectedGameObject;
+        if (_resultView != null && _resultView.IsOpen)
+        {
+            if (selected == null && _resultView.FirstSelectable != null)
+                FocusAfterFrame(_resultView.FirstSelectable);
+            return;
+        }
         // 背景クリックなどでフォーカスが外れても、パッドで操作を再開できる。
         if (selected == null)
         {
@@ -139,6 +160,8 @@ public class InventoryWeponSelectView : MonoBehaviour
 
     private void OnInventoryChanged()
     {
+        // 合成成功通知で完成品を消さず、結果を閉じたときに一覧を更新する。
+        if (_synthesizing || (_resultView != null && _resultView.IsOpen)) return;
         // 外部から武器が増減した場合も、古いインデックスや素材を使わない。
         ResetSelection();
     }
@@ -146,6 +169,9 @@ public class InventoryWeponSelectView : MonoBehaviour
     /// <summary>素材、付呪、結果プレビューを解除し、続けて合成できる初期状態へ戻す。</summary>
     private void ResetSelection()
     {
+        if (_resultView != null) _resultView.Hide();
+        _resultWeapon = null;
+        SetSelectionInteraction(true);
         _selectedWeapons.Clear();
         _enchantSelectionPanel.Clear();
         _previewPlate.ClearPreview();
@@ -203,7 +229,7 @@ public class InventoryWeponSelectView : MonoBehaviour
     private void SelectWeapon(int index)
     {
         var weapons = _inventory.GetAllWeapons();
-        if (_selectingEnchantments || index < 0 || index >= weapons.Count) return;
+        if ((_resultView != null && _resultView.IsOpen) || _selectingEnchantments || index < 0 || index >= weapons.Count) return;
         var weapon = weapons[index];
         if (_selectedWeapons.Contains(weapon)) _selectedWeapons.Remove(weapon);
         else if (_selectedWeapons.Count < MaxSelectCount) _selectedWeapons.Add(weapon);
@@ -299,6 +325,11 @@ public class InventoryWeponSelectView : MonoBehaviour
     /// <summary>直前の付呪、直前の素材、Menuの順に戻る。付呪がなければ武器選択へ戻る。</summary>
     public void Back()
     {
+        if (_resultView != null && _resultView.IsOpen)
+        {
+            _resultView.Cancel();
+            return;
+        }
         if (_selectingEnchantments)
         {
             if (_enchantSelectionPanel.UndoLastSelection()) return;
@@ -336,15 +367,52 @@ public class InventoryWeponSelectView : MonoBehaviour
     /// <summary>先に選んだ武器の種類と選択した0～3個の付呪で完成品を作り、素材2本と入れ替える。</summary>
     public bool TrySynthesize()
     {
-        if (!_selectingEnchantments || _selectedWeapons.Count != MaxSelectCount) return false;
+        if (_synthesizing || (_resultView != null && _resultView.IsOpen) ||
+            !_selectingEnchantments || _selectedWeapons.Count != MaxSelectCount) return false;
         var first = _selectedWeapons[0];
         var second = _selectedWeapons[1];
         if (FindWeaponIndex(first) < 0 || FindWeaponIndex(second) < 0 || first.weaponTemplate == null) return false;
         var result = new WeaponInstance(first.weaponTemplate, _inventory.defaultEnchantmentDB);
         result.SetEnchantments(_enchantSelectionPanel.GetSelectedEnchantments().ToArray());
-        // 保存・装備の補正・一覧への通知をまとめて行う。
-        // 入れ替え成功時の所持武器変更通知からResetSelectionが呼ばれ、画面を閉じずに選択だけを初期化する。
-        return _inventory.TryReplaceWeapons(first, second, result);
+        // 保存・素材を装備していた場合の完成品への装備補正は既存処理に任せる。
+        _synthesizing = true;
+        bool succeeded;
+        try { succeeded = _inventory.TryReplaceWeapons(first, second, result); }
+        finally { _synthesizing = false; }
+        if (!succeeded) return false;
+        if (_resultView == null)
+        {
+            ResetSelection();
+            return true;
+        }
+        _resultWeapon = result;
+        if (_focusCoroutine != null) StopCoroutine(_focusCoroutine);
+        _focusCoroutine = null;
+        if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
+        _enchantSelectionPanel.SetInteraction(false);
+        SetSelectionInteraction(false);
+        _resultView.Show(result);
+        return true;
+    }
+
+    private void SetSelectionInteraction(bool enabled)
+    {
+        if (_selectionGroup == null) return;
+        _selectionGroup.interactable = enabled;
+        _selectionGroup.blocksRaycasts = enabled;
+    }
+
+    private void OnResultChoiceSubmitted(bool equip)
+    {
+        if (_resultWeapon == null || !_resultView.IsReady) return;
+        if (equip && !_inventory.TryEquipWeapon(_resultWeapon))
+        {
+            Debug.LogError("完成武器を装備できませんでした。", this);
+            return;
+        }
+        // キャンセルでも合成は確定済み。装備状態はそのまま保持する。
+        _openedFrame = Time.frameCount;
+        ResetSelection();
     }
 
     /// <summary>動作確認用に素材2本と最大3個の付呪をランダム選択する。合成の確定は行わない。</summary>
