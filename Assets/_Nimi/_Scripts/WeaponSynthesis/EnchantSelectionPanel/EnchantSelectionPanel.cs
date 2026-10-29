@@ -15,20 +15,24 @@ public class EnchantSelectionPanel : MonoBehaviour
     [Header("選択数表示")]
     [SerializeField] private TMP_Text _selectCountText;
 
+
+    [Header("ページ")]
+    [SerializeField] private TMP_Text _pagenumberText;
+    [SerializeField] private GameObject _previousPage;
+    [SerializeField] private GameObject _nextPage;
+
     [Header("プレビュー")]
     [SerializeField] private WeaponsPreviewPlate _previewPlate;
 
-    // 生成せれたデータリスト
+    // 生成された表示行を保持し、ページ切替時も再利用する。
     private readonly List<EnchantSelectionData> _dataList = new();
     private IReadOnlyList<EnchantmentSlot> _candidates = Array.Empty<EnchantmentSlot>();
     // ページをまたいで候補全体の番号を選択順に保持し、Bで最後の選択を解除できるようにする。
     private readonly List<int> _selectedEnchantIndexes = new();
     private bool _interactionEnabled;
     private int _pageIndex;
-    private GameObject _pageControls;
     private UnityEngine.UI.Button _previousPageButton;
     private UnityEngine.UI.Button _nextPageButton;
-    private TMP_Text _pageText;
     private const int MaxSelectCount = 3;
     private const int PageSize = 6;
 
@@ -38,6 +42,25 @@ public class EnchantSelectionPanel : MonoBehaviour
     private int PageStart => _pageIndex * PageSize;
     private int VisibleCount => Math.Min(PageSize, _candidates.Count - PageStart);
     public UnityEngine.UI.Selectable FirstSelectable => VisibleCount > 0 ? _dataList[0].Selectable : null;
+
+    private void Awake()
+    {
+        // Inspectorで指定した既存UIを使用する。Buttonがある場合はクリック操作も接続する。
+        _previousPageButton = _previousPage != null ? _previousPage.GetComponent<UnityEngine.UI.Button>() : null;
+        _nextPageButton = _nextPage != null ? _nextPage.GetComponent<UnityEngine.UI.Button>() : null;
+        if (_previousPageButton != null) _previousPageButton.onClick.AddListener(OnPreviousPage);
+        if (_nextPageButton != null) _nextPageButton.onClick.AddListener(OnNextPage);
+        UpdatePageControls();
+    }
+
+    private void OnDestroy()
+    {
+        if (_previousPageButton != null) _previousPageButton.onClick.RemoveListener(OnPreviousPage);
+        if (_nextPageButton != null) _nextPageButton.onClick.RemoveListener(OnNextPage);
+    }
+
+    private void OnPreviousPage() => ChangePage(-1);
+    private void OnNextPage() => ChangePage(1);
 
     /// <summary>素材変更時に選択をリセットし、「なし」を含まない候補一覧を設定する。</summary>
     public void SetUp(IReadOnlyList<EnchantmentSlot> enchantments)
@@ -49,7 +72,7 @@ public class EnchantSelectionPanel : MonoBehaviour
             return;
         }
         if (enchantments == null) return;
-        // 圧縮された候補は全件コピーせず、そのまま参照して高レベル時の大量生成を防ぐ。
+        // 合成側で空枠を除外済みの候補は、そのまま参照して表示する。
         if (enchantments is WeaponSynthesisCandidates)
             _candidates = enchantments;
         else
@@ -186,77 +209,21 @@ public class EnchantSelectionPanel : MonoBehaviour
         return index >= 0 && index < VisibleCount ? _dataList[index].Selectable : null;
     }
 
-    /// <summary>複数ページがある場合だけページ操作UIを表示し、端のページでは対応するボタンを無効にする。</summary>
+    /// <summary>既存のページ番号を更新し、移動先のない側の矢印を非表示にする。</summary>
     private void UpdatePageControls()
     {
-        if (_pageControls == null && PageCount > 1) CreatePageControls();
-        if (_pageControls == null) return;
-        _pageControls.SetActive(PageCount > 1);
-        _previousPageButton.interactable = _interactionEnabled && _pageIndex > 0;
-        _nextPageButton.interactable = _interactionEnabled && _pageIndex < PageCount - 1;
-        _pageText.text = $"{_pageIndex + 1} / {PageCount}";
-    }
-
-    /// <summary>必要になったときだけ、前後ページボタンとページ番号のUIを生成する。</summary>
-    private void CreatePageControls()
-    {
-        _pageControls = new GameObject("EnchantPages", typeof(RectTransform));
-        _pageControls.layer = gameObject.layer;
-        var rect = (RectTransform)_pageControls.transform;
-        rect.SetParent(transform, false);
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
-        rect.pivot = new Vector2(0.5f, 0f);
-        rect.anchoredPosition = new Vector2(0f, 18f);
-        rect.sizeDelta = new Vector2(420f, 38f);
-        _previousPageButton = CreatePageButton(rect, "PreviousPage", "<", 0f, () => ChangePage(-1));
-        _nextPageButton = CreatePageButton(rect, "NextPage", ">", 1f, () => ChangePage(1));
-        _pageText = CreatePageText(rect, "PageNumber", string.Empty);
-        var textRect = _pageText.rectTransform;
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.offsetMin = new Vector2(70f, 0f);
-        textRect.offsetMax = new Vector2(-70f, 0f);
-        _pageText.enableAutoSizing = true;
-        _pageText.fontSizeMin = 12f;
-        _pageText.fontSizeMax = 24f;
-    }
-
-    private UnityEngine.UI.Button CreatePageButton(Transform parent, string name, string label, float anchor, Action clicked)
-    {
-        var buttonObject = new GameObject(name, typeof(RectTransform), typeof(UnityEngine.UI.Image), typeof(UnityEngine.UI.Button));
-        buttonObject.layer = gameObject.layer;
-        var rect = (RectTransform)buttonObject.transform;
-        rect.SetParent(parent, false);
-        rect.anchorMin = new Vector2(anchor, 0f);
-        rect.anchorMax = new Vector2(anchor, 1f);
-        rect.pivot = new Vector2(anchor, 0.5f);
-        rect.sizeDelta = new Vector2(60f, 0f);
-        buttonObject.GetComponent<UnityEngine.UI.Image>().color = new Color(0.25f, 0.05f, 0.03f, 0.95f);
-        var button = buttonObject.GetComponent<UnityEngine.UI.Button>();
-        button.targetGraphic = buttonObject.GetComponent<UnityEngine.UI.Image>();
-        // ページボタンへカーソルが流れないようにし、パッドのページ操作はLB/RBに任せる。
-        button.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
-        button.onClick.AddListener(() => clicked());
-        var text = CreatePageText(rect, "Label", label);
-        text.rectTransform.anchorMin = Vector2.zero;
-        text.rectTransform.anchorMax = Vector2.one;
-        text.rectTransform.offsetMin = text.rectTransform.offsetMax = Vector2.zero;
-        return button;
-    }
-
-    private TMP_Text CreatePageText(Transform parent, string name, string label)
-    {
-        var textObject = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-        textObject.layer = gameObject.layer;
-        textObject.transform.SetParent(parent, false);
-        var text = textObject.GetComponent<TextMeshProUGUI>();
-        if (_selectCountText != null) text.font = _selectCountText.font;
-        text.text = label;
-        text.fontSize = 24f;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = new Color(1f, 0.85f, 0.45f, 1f);
-        text.raycastTarget = false;
-        return text;
+        bool hasPrevious = _pageIndex > 0;
+        bool hasNext = _pageIndex < PageCount - 1;
+        if (_pagenumberText != null)
+        {
+            _pagenumberText.gameObject.SetActive(PageCount > 1);
+            _pagenumberText.text = $"{_pageIndex + 1} / {PageCount}";
+        }
+        if (_previousPage != null) _previousPage.SetActive(hasPrevious);
+        if (_nextPage != null) _nextPage.SetActive(hasNext);
+        // 武器選択中は表示状態を保ち、クリックで付呪ページを操作できないようにする。
+        if (_previousPageButton != null) _previousPageButton.interactable = _interactionEnabled && hasPrevious;
+        if (_nextPageButton != null) _nextPageButton.interactable = _interactionEnabled && hasNext;
     }
 
     /// <summary>デバッグ用の候補番号を重複なく最大3件選び、最初の選択が見えるページへ移動する。</summary>

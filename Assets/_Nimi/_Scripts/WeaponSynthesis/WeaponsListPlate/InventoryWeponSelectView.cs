@@ -217,7 +217,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         }
     }
 
-    /// <summary>選択順の異なる武器2本から、合算・分割済みの付呪候補を作成する。</summary>
+    /// <summary>選択した武器2本から、小さい値同士の合算と上限処理を行った付呪候補を作成する。</summary>
     private void UpdateEnchantPanel()
     {
         var first = _selectedWeapons.Count > 0 ? _selectedWeapons[0] : null;
@@ -270,7 +270,7 @@ public class InventoryWeponSelectView : MonoBehaviour
                 : count < 2 ? "合成には武器が2つ必要です <color=red>B</color>=戻る"
                 : "武器を2つ選択 <color=green>A</color>=選択・解除 <color=red>B</color>=戻る";
         if (_instructionText != null && enchantments && _enchantSelectionPanel.PageCount > 1)
-            _instructionText.text += " LB/RB=ページ切替";
+            _instructionText.text = "LB/RB=ページ切替 " + _instructionText.text;
     }
 
     private UnityEngine.UI.Selectable GetWeaponSelectable(int index)

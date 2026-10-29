@@ -56,7 +56,11 @@ public class FadeController : MonoBehaviour
         fadeImage.anchoredPosition = centerPos;
 
         IsFading = false;
-        inputPlayer.enabled = true;
+
+        if (inputPlayer != null)
+        {
+            inputPlayer.enabled = true;
+        }
     }
     /// <summary>
     /// フェードアウト（中央 → 左）
