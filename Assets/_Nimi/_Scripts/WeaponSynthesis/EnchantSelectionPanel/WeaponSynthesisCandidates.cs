@@ -8,6 +8,7 @@ public sealed class WeaponSynthesisCandidates : IReadOnlyList<EnchantmentSlot>
     private const int MaxMergedLevel = 9;
     private readonly List<CandidateGroup> _groups = new();
 
+    // 大量の候補を実体として並べず、「+9の個数」と「最後のレベル」でまとめて保持する。
     private struct CandidateGroup
     {
         public EnchantmentDataBase.EnchantmentName Name;
@@ -18,6 +19,7 @@ public sealed class WeaponSynthesisCandidates : IReadOnlyList<EnchantmentSlot>
 
     public int Count { get; private set; }
 
+    // 画面に必要な候補だけを取り出す。高レベルでも候補数に比例する大量生成を避ける。
     public EnchantmentSlot this[int index]
     {
         get
@@ -33,11 +35,13 @@ public sealed class WeaponSynthesisCandidates : IReadOnlyList<EnchantmentSlot>
         }
     }
 
+    /// <summary>武器Aの表示順で武器Bの同名付呪と1対1に組み合わせる。同じ武器内の付呪は合算しない。</summary>
     public static WeaponSynthesisCandidates Create(WeaponInstance first, WeaponInstance second)
     {
         var result = new WeaponSynthesisCandidates();
         var firstSlots = GetSlots(first);
         var secondSlots = GetSlots(second);
+        // 武器Bの同じ枠を複数回合算しないため、組み合わせ済みの枠を記録する。
         var used = new bool[secondSlots.Count];
         foreach (var slot in firstSlots)
         {
@@ -48,6 +52,7 @@ public sealed class WeaponSynthesisCandidates : IReadOnlyList<EnchantmentSlot>
                     match = i;
                     break;
                 }
+            // 相手武器に同名付呪がなければ、+11などの元のレベルを分割せず残す。
             if (match < 0)
                 result.Add(new CandidateGroup { Name = slot.enchantName, LastLevel = Math.Max(1, slot.enchantLevel) });
             else
@@ -58,6 +63,7 @@ public sealed class WeaponSynthesisCandidates : IReadOnlyList<EnchantmentSlot>
                 result.Add(new CandidateGroup
                 {
                     Name = slot.enchantName,
+                    // 例：7+7=14なら+9と+5、合計20なら+9・+9・+2に分ける。
                     FullCount = (int)(total / MaxMergedLevel),
                     LastLevel = (int)(total % MaxMergedLevel)
                 });
@@ -69,6 +75,7 @@ public sealed class WeaponSynthesisCandidates : IReadOnlyList<EnchantmentSlot>
         return result;
     }
 
+    /// <summary>元の表示順を維持して最大3枠を取り出し、空枠と「なし」は候補から除外する。</summary>
     private static List<EnchantmentSlot> GetSlots(WeaponInstance weapon)
     {
         var result = new List<EnchantmentSlot>();

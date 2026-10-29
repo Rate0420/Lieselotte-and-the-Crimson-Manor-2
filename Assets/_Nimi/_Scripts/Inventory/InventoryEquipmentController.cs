@@ -5,8 +5,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
+/// <summary>所持武器の一覧操作、装備確定、選択中と装備中の武器の比較表示を管理する。</summary>
 public class InventoryEquipmentController : MonoBehaviour
 {
+    // _printedは一覧のContent。_dataListの行を再利用し、所持数に足りない分だけ生成する。
     [SerializeField] private Transform _printed;
     [SerializeField] private InventoryWeponDataView _dataPrefab;
     [SerializeField] private List<InventoryWeponDataView> _dataList = new();
@@ -16,6 +18,7 @@ public class InventoryEquipmentController : MonoBehaviour
     [SerializeField, Min(0f)] private float _scrollVisibilityMargin = 8f;
 
     private WeaponInventory _inventory;
+    // カーソルで見ている武器と実際に装備している武器を分け、移動だけでは装備を変更しない。
     private WeaponInstance _focusedWeapon;
     private WeaponInstance _lastEquippedWeapon;
     private InventoryWeponDataView _focusedView;
@@ -31,6 +34,7 @@ public class InventoryEquipmentController : MonoBehaviour
         _scroll = new WeaponListScrollHelper(_printed, _scrollVisibilityMargin);
     }
 
+    // 初回表示はStartで初期化する。2回目以降は最新の所持状態で開き直す。
     private void OnEnable()
     {
         _openedFrame = Time.frameCount;
@@ -44,6 +48,7 @@ public class InventoryEquipmentController : MonoBehaviour
         OpenInventory();
     }
 
+    // 閉じた画面が入力や所持武器変更の通知を受け続けないように解除する。
     private void OnDisable()
     {
         _backAction.Disable();
@@ -61,6 +66,7 @@ public class InventoryEquipmentController : MonoBehaviour
 
     private void OnDestroy() => _backAction?.Dispose();
 
+    /// <summary>現在の装備武器を初期カーソル位置にして、一覧と比較欄を更新する。</summary>
     private void OpenInventory()
     {
         _inventory = WeaponInventory.Instance;
@@ -79,15 +85,18 @@ public class InventoryEquipmentController : MonoBehaviour
 
     private void Update()
     {
+        // 画面を開いたフレームの入力を「戻る」として扱わない。
         if (_initialized && Time.frameCount != _openedFrame && _backAction.WasPerformedThisFrame()) Back();
     }
 
+    // UIのカーソル移動後に比較欄を追従させ、選択行が見える位置までスクロールする。
     private void LateUpdate()
     {
         if (!_initialized || _inventory == null) return;
         if (_lastEquippedWeapon != _inventory.GetWeapon(_inventory.equipmentIndex)) RefreshEquipment();
         if (_focusCoroutine != null || EventSystem.current == null) return;
         var selected = EventSystem.current.currentSelectedGameObject;
+        // 背景クリックなどで選択が外れても、パッドで操作を再開できるように戻す。
         if (selected == null)
         {
             FocusAfterFrame(FindWeaponIndex(_focusedWeapon));
@@ -105,6 +114,7 @@ public class InventoryEquipmentController : MonoBehaviour
         _scroll.EnsureVisible(view);
     }
 
+    /// <summary>行を再利用して一覧を組み直し、更新前に見ていた武器へカーソルを戻す。</summary>
     private void RefreshInventory()
     {
         int index = FindWeaponIndex(_focusedWeapon);
@@ -119,6 +129,7 @@ public class InventoryEquipmentController : MonoBehaviour
             view.OnSelectClicked -= EquipWeapon;
             view.OnSelectClicked += EquipWeapon;
             view.gameObject.SetActive(true);
+            // 左右の比較欄へ飛ばないよう、一覧の上下だけを移動先に指定する。
             view.Selectable.navigation = new UnityEngine.UI.Navigation
             {
                 mode = UnityEngine.UI.Navigation.Mode.Explicit,
@@ -141,6 +152,7 @@ public class InventoryEquipmentController : MonoBehaviour
         FocusAfterFrame(FindWeaponIndex(_focusedWeapon));
     }
 
+    /// <summary>既存の行を再利用し、所持数に対して足りない分だけ行を生成する。</summary>
     private InventoryWeponDataView GetOrCreateView(int index)
     {
         if (index < _dataList.Count && _dataList[index] != null) return _dataList[index];
@@ -150,6 +162,7 @@ public class InventoryEquipmentController : MonoBehaviour
         return view;
     }
 
+    /// <summary>A入力またはクリックされた行の武器を装備し、その場で保存する。</summary>
     private void EquipWeapon(InventoryWeponDataView view)
     {
         var weapon = _inventory.GetWeapon(_dataList.IndexOf(view));
@@ -160,6 +173,7 @@ public class InventoryEquipmentController : MonoBehaviour
         RefreshEquipment();
     }
 
+    /// <summary>実際に装備している武器だけに装備マークを付け、比較欄を更新する。</summary>
     private void RefreshEquipment()
     {
         var weapons = _inventory.GetAllWeapons();
@@ -175,6 +189,7 @@ public class InventoryEquipmentController : MonoBehaviour
         _preview.ShowComparison(_focusedWeapon, _lastEquippedWeapon);
     }
 
+    /// <summary>同じ種類の武器を区別するため、武器の実体を使って所持位置を探す。</summary>
     private int FindWeaponIndex(WeaponInstance weapon)
     {
         var weapons = _inventory.GetAllWeapons();
@@ -189,6 +204,7 @@ public class InventoryEquipmentController : MonoBehaviour
         _focusCoroutine = index >= 0 && index < _inventory.GetAllWeapons().Count ? StartCoroutine(SelectAfterFrame(index)) : null;
     }
 
+    // 行の有効化とUI更新を1フレーム待ってからカーソルを設定する。
     private IEnumerator SelectAfterFrame(int index)
     {
         yield return null;
@@ -197,6 +213,7 @@ public class InventoryEquipmentController : MonoBehaviour
         _focusCoroutine = null;
     }
 
+    /// <summary>B入力で装備画面を閉じ、Menuへ操作を戻す。</summary>
     public void Back()
     {
         var menu = FindFirstObjectByType<MeneManager>();

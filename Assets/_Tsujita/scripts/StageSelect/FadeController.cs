@@ -35,7 +35,10 @@ public class FadeController : MonoBehaviour
     {
         Debug.Log("ƒCƒ“‚¾‚æ");
         IsFading = true;
-        inputPlayer.enabled = false;
+        if (inputPlayer != null)
+        {
+            inputPlayer.enabled = false;
+        }
         EventSystem.current.enabled = false;
 
         float time = 0f;

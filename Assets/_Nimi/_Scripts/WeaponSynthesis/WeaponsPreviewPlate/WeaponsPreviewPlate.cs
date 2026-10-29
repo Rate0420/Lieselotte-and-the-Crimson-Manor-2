@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>合成素材2本と完成武器のプレビューを表示する。候補計算や合成の確定は担当しない。</summary>
 public class WeaponsPreviewPlate : MonoBehaviour
 {
     [Header("プレビュー01")]
@@ -90,6 +91,7 @@ public class WeaponsPreviewPlate : MonoBehaviour
         {
             if (texts[i] == null) continue;
 
+            // 選んだ付呪が3個未満でも、残りの枠は「なし」として必ず表示する。
             texts[i].text = enchantments != null && i < enchantments.Count
                 ? enchantments[i]
                 : "なし";

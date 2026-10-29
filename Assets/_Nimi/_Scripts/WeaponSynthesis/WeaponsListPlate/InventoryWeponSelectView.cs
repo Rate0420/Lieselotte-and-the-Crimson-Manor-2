@@ -23,6 +23,7 @@ public class InventoryWeponSelectView : MonoBehaviour
     [SerializeField] private bool _randomSynthesisOnStart;
 
     private WeaponInventory _inventory;
+    // 選択した順番を保持する。先頭が完成武器のベース、末尾がBで解除する素材になる。
     private readonly List<WeaponInstance> _selectedWeapons = new();
     private WeaponListScrollHelper _scroll;
     private InputAction _backAction;
@@ -91,6 +92,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         if (_enchantSelectionPanel != null) _enchantSelectionPanel.PageChanged -= OnEnchantPageChanged;
     }
 
+    /// <summary>所持武器変更の通知を登録し、武器選択から合成画面を開始する。</summary>
     private void OpenSelection()
     {
         if (_inventory == null) _inventory = WeaponInventory.Instance;
@@ -107,6 +109,7 @@ public class InventoryWeponSelectView : MonoBehaviour
 
     private void Update()
     {
+        // Menuから画面を開いた入力が、そのまま合成や戻る操作として使われるのを防ぐ。
         if (!_initialized || Time.frameCount == _openedFrame) return;
         if (_backAction.WasPerformedThisFrame()) Back();
         else if (_synthesisAction.WasPerformedThisFrame()) TrySynthesize();
@@ -140,6 +143,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         ResetSelection();
     }
 
+    /// <summary>素材、付呪、結果プレビューを解除し、続けて合成できる初期状態へ戻す。</summary>
     private void ResetSelection()
     {
         _selectedWeapons.Clear();
@@ -151,6 +155,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         FocusAfterFrame(GetWeaponSelectable(0));
     }
 
+    /// <summary>最新の所持武器を行に割り当て、余った行を隠してスクロール余白を調整する。</summary>
     private void InitializeWeaponList()
     {
         var weapons = _inventory.GetAllWeapons();
@@ -171,6 +176,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         _scroll.UpdatePadding(_dataList);
     }
 
+    /// <summary>既存の表示行を再利用し、足りない分だけプレハブから追加する。</summary>
     private InventoryWeponDataView GetOrCreateDataView(int index)
     {
         if (index < _dataList.Count && _dataList[index] != null) return _dataList[index];
@@ -193,6 +199,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         SelectWeapon(_dataList.IndexOf(view));
     }
 
+    /// <summary>A入力で素材を選択・解除し、2本揃ったら自動的に付呪選択へ進む。</summary>
     private void SelectWeapon(int index)
     {
         var weapons = _inventory.GetAllWeapons();
@@ -210,6 +217,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         }
     }
 
+    /// <summary>選択順の異なる武器2本から、合算・分割済みの付呪候補を作成する。</summary>
     private void UpdateEnchantPanel()
     {
         var first = _selectedWeapons.Count > 0 ? _selectedWeapons[0] : null;
@@ -217,6 +225,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         _enchantSelectionPanel.SetUp(WeaponSynthesisCandidates.Create(first, second));
     }
 
+    /// <summary>素材を選んだ順番に「素材1」「素材2」の表示を付け直す。</summary>
     private void RefreshSelection()
     {
         var weapons = _inventory.GetAllWeapons();
@@ -228,6 +237,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         }
     }
 
+    /// <summary>選択した素材を表示し、最初の素材のアイコンを完成武器のアイコンに使う。</summary>
     private void UpdatePreview()
     {
         _previewPlate.ClearPreview();
@@ -236,6 +246,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         if (_selectedWeapons.Count > 0) _previewPlate.SetResultIcon(_selectedWeapons[0].Icon);
     }
 
+    /// <summary>武器選択と付呪選択を切り替え、操作できるUIと案内文を更新する。</summary>
     private void SetSelectionStage(bool enchantments)
     {
         _selectingEnchantments = enchantments;
@@ -285,6 +296,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         _focusCoroutine = null;
     }
 
+    /// <summary>直前の付呪、直前の素材、Menuの順に戻る。付呪がなければ武器選択へ戻る。</summary>
     public void Back()
     {
         if (_selectingEnchantments)
@@ -321,6 +333,7 @@ public class InventoryWeponSelectView : MonoBehaviour
         return -1;
     }
 
+    /// <summary>先に選んだ武器の種類と選択した0～3個の付呪で完成品を作り、素材2本と入れ替える。</summary>
     public bool TrySynthesize()
     {
         if (!_selectingEnchantments || _selectedWeapons.Count != MaxSelectCount) return false;
@@ -330,9 +343,11 @@ public class InventoryWeponSelectView : MonoBehaviour
         var result = new WeaponInstance(first.weaponTemplate, _inventory.defaultEnchantmentDB);
         result.SetEnchantments(_enchantSelectionPanel.GetSelectedEnchantments().ToArray());
         // 保存・装備の補正・一覧への通知をまとめて行う。
+        // 入れ替え成功時の所持武器変更通知からResetSelectionが呼ばれ、画面を閉じずに選択だけを初期化する。
         return _inventory.TryReplaceWeapons(first, second, result);
     }
 
+    /// <summary>動作確認用に素材2本と最大3個の付呪をランダム選択する。合成の確定は行わない。</summary>
     [ContextMenu("Random Synthesis Debug")]
     public void RandomSynthesisDebug()
     {

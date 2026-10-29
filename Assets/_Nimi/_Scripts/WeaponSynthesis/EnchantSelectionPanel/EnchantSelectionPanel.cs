@@ -7,15 +7,21 @@ using UnityEngine;
 public class EnchantSelectionPanel : MonoBehaviour
 {
     [Header("生成設定")]
+    [Tooltip("生成場所の親オブジェクトを指定")]
     [SerializeField] private Transform _printed;
+    [Tooltip("生成するデータプレハブ")]
     [SerializeField] private EnchantSelectionData _dataPrefab;
+
     [Header("選択数表示")]
     [SerializeField] private TMP_Text _selectCountText;
+
     [Header("プレビュー")]
     [SerializeField] private WeaponsPreviewPlate _previewPlate;
 
+    // 生成せれたデータリスト
     private readonly List<EnchantSelectionData> _dataList = new();
     private IReadOnlyList<EnchantmentSlot> _candidates = Array.Empty<EnchantmentSlot>();
+    // ページをまたいで候補全体の番号を選択順に保持し、Bで最後の選択を解除できるようにする。
     private readonly List<int> _selectedEnchantIndexes = new();
     private bool _interactionEnabled;
     private int _pageIndex;
@@ -33,6 +39,7 @@ public class EnchantSelectionPanel : MonoBehaviour
     private int VisibleCount => Math.Min(PageSize, _candidates.Count - PageStart);
     public UnityEngine.UI.Selectable FirstSelectable => VisibleCount > 0 ? _dataList[0].Selectable : null;
 
+    /// <summary>素材変更時に選択をリセットし、「なし」を含まない候補一覧を設定する。</summary>
     public void SetUp(IReadOnlyList<EnchantmentSlot> enchantments)
     {
         Clear();
@@ -42,6 +49,7 @@ public class EnchantSelectionPanel : MonoBehaviour
             return;
         }
         if (enchantments == null) return;
+        // 圧縮された候補は全件コピーせず、そのまま参照して高レベル時の大量生成を防ぐ。
         if (enchantments is WeaponSynthesisCandidates)
             _candidates = enchantments;
         else
@@ -54,18 +62,21 @@ public class EnchantSelectionPanel : MonoBehaviour
         RenderPage();
     }
 
+    /// <summary>付呪の名前とレベルを表示用に整形する。空枠の表示は「なし」に統一する。</summary>
     public static string FormatEnchantment(EnchantmentSlot slot)
     {
         return slot == null || slot.enchantName == EnchantmentDataBase.EnchantmentName.なし
             ? "なし" : $"{slot.enchantName} + {slot.enchantLevel}";
     }
 
+    /// <summary>現在のページに対応する最大6件だけを、生成済みの表示行へ割り当てる。</summary>
     private void RenderPage()
     {
         for (int i = 0; i < _dataList.Count; i++)
             if (_dataList[i] != null) _dataList[i].gameObject.SetActive(false);
         for (int i = 0; i < VisibleCount; i++)
         {
+            // ページ内の行番号を候補一覧全体の番号へ変換する。
             int index = PageStart + i;
             var data = GetOrCreateData(i);
             data.SetUp(index, FormatEnchantment(_candidates[index]));
@@ -85,6 +96,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         return data;
     }
 
+    /// <summary>付呪の選択・解除を受け付け、4個目の選択は元の表示に戻して拒否する。</summary>
     private void SelectEnchantment(int index, bool isSelected)
     {
         int row = index - PageStart;
@@ -103,6 +115,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         UpdatePreview();
     }
 
+    /// <summary>ページを切り替え、コントローラー側へカーソルの移動が必要なことを通知する。</summary>
     public bool ChangePage(int direction)
     {
         if (!_interactionEnabled) return false;
@@ -114,6 +127,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         return true;
     }
 
+    /// <summary>B入力で最後に選んだ付呪を解除する。別ページの候補ならそのページも表示する。</summary>
     public bool UndoLastSelection()
     {
         if (_selectedEnchantIndexes.Count == 0) return false;
@@ -130,6 +144,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         return true;
     }
 
+    /// <summary>選択順で付呪のコピーを返す。完成武器が候補や素材のスロットを直接共有しないようにする。</summary>
     public List<EnchantmentSlot> GetSelectedEnchantments()
     {
         var result = new List<EnchantmentSlot>();
@@ -141,6 +156,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         return result;
     }
 
+    /// <summary>付呪選択中だけ入力を有効にし、グリッドの列数に合わせて十字キーの移動先を設定する。</summary>
     public void SetInteraction(bool enabled)
     {
         _interactionEnabled = enabled;
@@ -170,6 +186,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         return index >= 0 && index < VisibleCount ? _dataList[index].Selectable : null;
     }
 
+    /// <summary>複数ページがある場合だけページ操作UIを表示し、端のページでは対応するボタンを無効にする。</summary>
     private void UpdatePageControls()
     {
         if (_pageControls == null && PageCount > 1) CreatePageControls();
@@ -180,6 +197,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         _pageText.text = $"{_pageIndex + 1} / {PageCount}";
     }
 
+    /// <summary>必要になったときだけ、前後ページボタンとページ番号のUIを生成する。</summary>
     private void CreatePageControls()
     {
         _pageControls = new GameObject("EnchantPages", typeof(RectTransform));
@@ -216,6 +234,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         buttonObject.GetComponent<UnityEngine.UI.Image>().color = new Color(0.25f, 0.05f, 0.03f, 0.95f);
         var button = buttonObject.GetComponent<UnityEngine.UI.Button>();
         button.targetGraphic = buttonObject.GetComponent<UnityEngine.UI.Image>();
+        // ページボタンへカーソルが流れないようにし、パッドのページ操作はLB/RBに任せる。
         button.navigation = new UnityEngine.UI.Navigation { mode = UnityEngine.UI.Navigation.Mode.None };
         button.onClick.AddListener(() => clicked());
         var text = CreatePageText(rect, "Label", label);
@@ -240,6 +259,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         return text;
     }
 
+    /// <summary>デバッグ用の候補番号を重複なく最大3件選び、最初の選択が見えるページへ移動する。</summary>
     public void SetSelectedEnchantmentsForDebug(List<int> enchantIndexes)
     {
         _selectedEnchantIndexes.Clear();
@@ -255,6 +275,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         UpdatePreview();
     }
 
+    /// <summary>選択数と完成武器の付呪プレビューを、選択した順番で更新する。</summary>
     private void UpdatePreview()
     {
         if (_selectCountText != null) _selectCountText.text = $"{_selectedEnchantIndexes.Count} / {MaxSelectCount}";
@@ -264,6 +285,7 @@ public class EnchantSelectionPanel : MonoBehaviour
         _previewPlate.SetResultEnchantments(texts);
     }
 
+    /// <summary>生成済みの行は再利用のため残し、候補・選択・ページ位置だけを初期化する。</summary>
     public void Clear()
     {
         foreach (var data in _dataList)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class InventorySaveData
 {
     public List<WeaponSaveData> weapons = new();
+    // 所持一覧のどの武器を装備しているかを保存する。項目のない旧セーブでは0になる。
     public int equipmentIndex;
 }
 

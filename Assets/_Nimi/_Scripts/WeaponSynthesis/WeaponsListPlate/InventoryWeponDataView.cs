@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>合成・装備画面で共用する武器一覧の1行。表示と選択入力の通知を担当する。</summary>
 public class InventoryWeponDataView : MonoBehaviour
 {
     [Header("武器情報")]
@@ -22,6 +23,7 @@ public class InventoryWeponDataView : MonoBehaviour
     public UnityEngine.UI.Selectable Selectable => _selectedToggle;
 
     public event Action<InventoryWeponDataView> OnSelectClicked;
+    // プログラムによる表示変更中は、Toggleの通知をユーザー入力として処理しない。
     private bool _isUpdatingToggle;
 
     private void Awake()
@@ -52,6 +54,7 @@ public class InventoryWeponDataView : MonoBehaviour
         if (_highlightImage != null) _highlightImage.enabled = false;
     }
 
+    /// <summary>カーソルがある行だけハイライト画像を表示する。素材・装備の確定表示とは区別する。</summary>
     private void UpdateHighlight()
     {
         if (_highlightImage == null) return;
@@ -59,6 +62,7 @@ public class InventoryWeponDataView : MonoBehaviour
             EventSystem.current != null && EventSystem.current.currentSelectedGameObject == _selectedToggle.gameObject;
     }
 
+    /// <summary>行を再利用するときに武器アイコンと付呪の文字列を差し替える。</summary>
     public void SetUpData(Sprite icon, List<string> enchantments)
     {
         SetIcon(icon);
@@ -100,6 +104,7 @@ public class InventoryWeponDataView : MonoBehaviour
         }
     }
 
+    /// <summary>確定状態のチェックとラベルを解除し、カーソルのハイライトは現在位置に合わせる。</summary>
     public void ResetSelection()
     {
         SetToggleWithoutEvent(false);
@@ -118,11 +123,13 @@ public class InventoryWeponDataView : MonoBehaviour
     }
 
 
+    /// <summary>合成素材として選ばれた順番を表示する。</summary>
     public void Selection(int index)
     {
         Selection($"素材 {index}");
     }
 
+    /// <summary>確定状態にし、「素材1」や「装備中」など画面ごとのラベルを表示する。</summary>
     public void Selection(string label)
     {
         SetToggleWithoutEvent(true);
@@ -139,6 +146,7 @@ public class InventoryWeponDataView : MonoBehaviour
     }
 
 
+    /// <summary>表示更新でToggleを変更しても、ユーザーの再選択として通知されないようにする。</summary>
     private void SetToggleWithoutEvent(bool value)
     {
         if (_selectedToggle == null) return;

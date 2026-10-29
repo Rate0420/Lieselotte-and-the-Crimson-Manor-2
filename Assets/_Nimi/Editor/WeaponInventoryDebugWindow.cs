@@ -7,6 +7,7 @@ using EnchantmentName = EnchantmentDataBase.EnchantmentName;
 
 namespace Nimi.Editor
 {
+    /// <summary>EditorのGUIで武器と付呪3枠を指定し、再生中の所持武器へ追加・保存する。</summary>
     public class WeaponInventoryDebugWindow : EditorWindow
     {
         private const string LayoutPath = "Assets/_Nimi/Editor/WeaponInventoryDebugWindow.uxml";
@@ -47,6 +48,7 @@ namespace Nimi.Editor
             ObserveInventory(null);
         }
 
+        /// <summary>UXMLの画面を読み込み、武器選択・付呪選択・レベル入力と追加ボタンを接続する。</summary>
         public void CreateGUI()
         {
             rootVisualElement.Clear();
@@ -103,6 +105,7 @@ namespace Nimi.Editor
             if (databases.Length > 0)
                 _defaultDatabase = AssetDatabase.LoadAssetAtPath<Enchantment>(AssetDatabase.GUIDToAssetPath(databases[0]));
             RefreshContext(true);
+            // 再生開始・終了やシーン変更を検知するため、操作対象を定期的に確認する。
             rootVisualElement.schedule.Execute(() => RefreshContext()).Every(500);
         }
 
@@ -111,6 +114,7 @@ namespace Nimi.Editor
             RefreshContext(true);
         }
 
+        /// <summary>操作対象のインベントリが変わったら、古い変更通知を解除して登録し直す。</summary>
         private void ObserveInventory(WeaponInventory inventory)
         {
             if (_inventory != null) _inventory.OnInventoryChanged -= UpdateStatus;
@@ -118,6 +122,7 @@ namespace Nimi.Editor
             if (_inventory != null) _inventory.OnInventoryChanged += UpdateStatus;
         }
 
+        /// <summary>再生状態やシーン変更に合わせて操作対象とデータベースを更新する。</summary>
         private void RefreshContext(bool force = false)
         {
             if (_weaponField == null) return;
@@ -132,6 +137,7 @@ namespace Nimi.Editor
             UpdateStatus();
         }
 
+        /// <summary>保存後に復元できる武器と、効果データのある付呪を選択肢へ設定する。</summary>
         private void RefreshChoices()
         {
             _weapons.Clear();
@@ -168,15 +174,17 @@ namespace Nimi.Editor
             }
         }
 
+        /// <summary>レベルは1以上で上限なしとし、「なし」の枠だけ入力を無効にする。</summary>
         private void UpdateLevel(int index)
         {
             int max = GetMaxLevel(_database, _enchantmentNames[index]);
             _levels[index] = Mathf.Max(1, _levels[index]);
             _levelFields[index].SetValueWithoutNotify(_levels[index]);
             _levelFields[index].SetEnabled(_enchantmentNames[index] != EnchantmentName.なし);
-            _levelFields[index].tooltip = $"1以上を指定できます。効果データはLv{max}まであり、未設定のレベルは効果0になります。";
+            _levelFields[index].tooltip = $"1以上を指定できます。効果データはLv{max}まであり、それ以降は最後のレベル間の増加量で効果を延長します。";
         }
 
+        /// <summary>再生中だけ追加を許可し、所持数と高レベル付呪の効果計算について案内する。</summary>
         private void UpdateStatus()
         {
             if (_addButton == null) return;
@@ -189,11 +197,12 @@ namespace Nimi.Editor
             for (int i = 0; i < 3; i++)
                 if (_enchantmentNames[i] != EnchantmentName.なし && _levels[i] > GetMaxLevel(_database, _enchantmentNames[i]))
                 {
-                    _contextHelp.text += "\n効果データが未設定のレベルの付呪は効果0になります。";
+                    _contextHelp.text += "\n効果データの上限を超える付呪は、最後のレベル間の増加量で効果を延長します。";
                     break;
                 }
         }
 
+        /// <summary>GUIの設定から付呪適用済みの武器を作成し、保存と一覧への変更通知まで行う。</summary>
         private void AddSelectedWeapon()
         {
             RefreshContext();
@@ -215,6 +224,7 @@ namespace Nimi.Editor
             UpdateStatus();
         }
 
+        /// <summary>効果配列の末尾の番号を返す。配列の0番目はLv0なので、最大レベルは長さより1小さい。</summary>
         internal static int GetMaxLevel(Enchantment database, EnchantmentName name)
         {
             var data = database != null && database.EnchantmentData != null
@@ -222,6 +232,7 @@ namespace Nimi.Editor
             return data?.Efficacy != null ? Mathf.Max(0, data.Efficacy.Length - 1) : 0;
         }
 
+        /// <summary>「なし」の枠を除いて付呪を設定し、追加前に武器のステータスへ効果を反映する。</summary>
         internal static WeaponInstance CreateWeapon(WeaponTemplate template, Enchantment database, EnchantmentName[] names, int[] levels)
         {
             if (template == null) throw new ArgumentNullException(nameof(template));
@@ -236,6 +247,7 @@ namespace Nimi.Editor
                 slots.Add(new EnchantmentSlot(names[i], Mathf.Max(1, levels[i])));
             }
             var weapon = new WeaponInstance(template, database);
+            // 文字列だけでなくHPや移動速度などの実際の数値も、ここで付呪から再計算する。
             weapon.SetEnchantments(slots.ToArray());
             return weapon;
         }

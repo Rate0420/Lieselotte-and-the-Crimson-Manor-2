@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>付呪候補1件の表示とToggle入力を担当し、候補番号と選択状態を親パネルへ通知する。</summary>
 public class EnchantSelectionData : MonoBehaviour
 {
     [SerializeField] private TMP_Text _enchantmentText;
@@ -40,6 +41,7 @@ public class EnchantSelectionData : MonoBehaviour
         }
     }
 
+    /// <summary>現在のカーソル位置だけをハイライトする。チェック済みかどうかとは独立した表示にする。</summary>
     private void LateUpdate()
     {
         if (_highlightImage == null) return;
@@ -52,6 +54,7 @@ public class EnchantSelectionData : MonoBehaviour
         if (_highlightImage != null) _highlightImage.enabled = false;
     }
 
+    /// <summary>ページ内の行を再利用し、候補一覧全体での番号と表示文字列を更新する。</summary>
     public void SetUp(int index, string enchantment)
     {
         EnchantmentIndex = index;
@@ -63,6 +66,7 @@ public class EnchantSelectionData : MonoBehaviour
         }
     }
 
+    /// <summary>パネル側から選択表示を同期する。Toggle変更の通知が再帰的に発生するのを防ぐ。</summary>
     public void Selected(bool isSelected)
     {
         if (_selectedToggle == null) return;

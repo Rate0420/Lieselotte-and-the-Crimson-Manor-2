@@ -112,11 +112,13 @@ public class WeaponInventory : MonoBehaviour
         return true;
     }
 
+    /// <summary>所持している武器だけを装備し、保存成功後に装備変更を通知する。同じ武器の再装備では解除しない。</summary>
     public bool TryEquipWeapon(WeaponInstance weapon)
     {
         int index = weapon != null ? weapons.IndexOf(weapon) : -1;
         if (index < 0) return false;
         if (index == equipmentIndex) return true;
+        // 保存できなかった場合は元の装備へ戻せるよう、変更前の位置を保持する。
         int previous = equipmentIndex;
         equipmentIndex = index;
         try
@@ -142,6 +144,7 @@ public class WeaponInventory : MonoBehaviour
         int secondIndex = weapons.IndexOf(second);
         if (firstIndex < 0 || secondIndex < 0) return false;
 
+        // 合成の保存に失敗した場合に、消費した素材と元の装備状態を復元するための控え。
         var previousWeapons = new List<WeaponInstance>(weapons);
         int previousEquipmentIndex = equipmentIndex;
         var equipped = GetWeapon(equipmentIndex);
@@ -226,6 +229,7 @@ public class WeaponInventory : MonoBehaviour
     public void SaveInventory()
     {
         InventorySaveData save = new();
+        // 所持一覧と一緒に装備位置を保存し、再起動後も同じ武器を装備できるようにする。
         save.equipmentIndex = Mathf.Clamp(equipmentIndex, 0, Mathf.Max(0, weapons.Count - 1));
 
         foreach (var weapon in weapons)
@@ -278,6 +282,7 @@ public class WeaponInventory : MonoBehaviour
             instance.SetEnchantments(slots.ToArray());
             weapons.Add(instance);
         }
+        // 古いセーブは既定値の0を使い、保存位置が所持数の範囲外なら有効な位置に収める。
         equipmentIndex = Mathf.Clamp(save.equipmentIndex, 0, Mathf.Max(0, weapons.Count - 1));
         Debug.Log("ロード");
     }

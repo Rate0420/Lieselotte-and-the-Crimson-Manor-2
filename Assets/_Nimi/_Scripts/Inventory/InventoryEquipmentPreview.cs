@@ -3,6 +3,7 @@ using System.Globalization;
 using TMPro;
 using UnityEngine;
 
+/// <summary>選択中・装備中の武器について、アイコン、付呪3枠、ステータスを並べて表示する。</summary>
 public class InventoryEquipmentPreview : MonoBehaviour
 {
     [SerializeField] private UnityEngine.UI.Image _selectedIcon;
@@ -14,12 +15,14 @@ public class InventoryEquipmentPreview : MonoBehaviour
     [SerializeField] private TMP_Text[] _selectedStats = new TMP_Text[11];
     [SerializeField] private TMP_Text[] _equippedStats = new TMP_Text[11];
 
+    // 表示順はGetStatTextsの戻り値と、Inspectorのステータステキスト配列で揃える。
     public static readonly string[] StatLabels =
     {
         "HP", "攻撃力", "スタミナ回復速度", "攻撃速度", "移動速度", "致命攻撃補正",
         "コンボ受付時間", "パリィ受付時間", "ガード時スタミナ消費", "初撃補正", "戦技補正"
     };
 
+    /// <summary>両方の表示を更新する。武器がない場合はアイコンを隠し、空の表示にする。</summary>
     public void ShowComparison(WeaponInstance selected, WeaponInstance equipped)
     {
         ShowIcon(_selectedIcon, selected);
@@ -32,6 +35,7 @@ public class InventoryEquipmentPreview : MonoBehaviour
         ShowTexts(_equippedStats, GetStatTexts(equipped));
     }
 
+    /// <summary>付呪を3枠分の文字列に変換し、存在しない枠は「なし」で埋める。</summary>
     public static List<string> GetEnchantmentTexts(WeaponInstance weapon)
     {
         var texts = new List<string>();
@@ -41,6 +45,7 @@ public class InventoryEquipmentPreview : MonoBehaviour
         return texts;
     }
 
+    /// <summary>付呪適用済みの武器の数値を、比較欄に対応する順番で返す。</summary>
     public static string[] GetStatTexts(WeaponInstance weapon)
     {
         if (weapon == null)
@@ -58,6 +63,7 @@ public class InventoryEquipmentPreview : MonoBehaviour
         };
     }
 
+    // 小数は最大3桁まで表示し、不要な末尾の0を省く。
     private static string Format(float value) => value.ToString("0.###", CultureInfo.InvariantCulture);
 
     private static void ShowIcon(UnityEngine.UI.Image image, WeaponInstance weapon)
