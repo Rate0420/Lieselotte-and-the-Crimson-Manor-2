@@ -2591,6 +2591,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestInventry
       objectReference: {fileID: 0}
+    - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
+      propertyPath: rapierTemplate
+      value: 
+      objectReference: {fileID: 11400000, guid: 7aefa3628f80f5440bf4d272c9d35b03, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

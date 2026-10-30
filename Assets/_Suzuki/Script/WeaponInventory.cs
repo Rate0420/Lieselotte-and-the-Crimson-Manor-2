@@ -26,6 +26,8 @@ public class WeaponInventory : MonoBehaviour
 
     public int equipmentIndex = 0;
 
+    public bool testFlag = false;
+
     protected virtual string SavePath => Application.persistentDataPath + "/inventory.json";
 
     /// <summary>
@@ -69,6 +71,28 @@ public class WeaponInventory : MonoBehaviour
             AddWeapon(instance);
         }
         SaveInventory();
+
+        if (testFlag)
+        {
+            var instance = new WeaponInstance(
+                greatswordTemplate,
+                defaultEnchantmentDB
+            );
+            // 作った武器を0番目に書き換える
+            if (weapons.Count > 0)
+            {
+                weapons[0] = instance;
+            }
+            else
+            {
+                AddWeapon(instance);
+            }
+
+            // 装備位置を0に設定
+            equipmentIndex = 0;
+
+        }
+
 
     }
 

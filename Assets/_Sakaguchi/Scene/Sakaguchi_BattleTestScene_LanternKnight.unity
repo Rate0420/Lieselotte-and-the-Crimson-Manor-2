@@ -618,6 +618,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: PlayerGuard
       objectReference: {fileID: 0}
+    - target: {fileID: 5985479915196562367, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: b94db13f78581c24385bc076ef36b8af, type: 2}
     - target: {fileID: 5993964506753903190, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -7180,6 +7184,10 @@ PrefabInstance:
     - target: {fileID: 2674013677688252648, guid: 841786f422e683c40895c3f156a2f877, type: 3}
       propertyPath: m_Name
       value: TestInventry
+      objectReference: {fileID: 0}
+    - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
+      propertyPath: testFlag
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3127035540970846317, guid: 841786f422e683c40895c3f156a2f877, type: 3}
       propertyPath: rapierTemplate
