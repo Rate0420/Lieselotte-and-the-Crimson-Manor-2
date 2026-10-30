@@ -35,13 +35,13 @@ MonoBehaviour:
   CharacterMotionSet:
     AnimatorController: {fileID: 9100000, guid: 19e9184b397507a42bb8db827f358779, type: 2}
     AttackMotionTimes:
-    - 1.13
-    - 1.06
-    - 1.03
-    AttackColliderTiming:
-    - 1
     - 0.8
-    - 0.55
+    - 0.7
+    - 0.9
+    AttackColliderTiming:
+    - 0
+    - 0
+    - 0
     AttackColliderSize: {x: 1.5, y: 2, z: 2}
     AttackColliderPosition: {x: 0, y: 1, z: 1.1}
   hitboxStartTime: 100
@@ -49,8 +49,8 @@ MonoBehaviour:
   UniqueAttack: {fileID: 11400000, guid: a6169be5987f4bc49850bff3dfb90ac4, type: 2}
   comboHitData:
   - hitTimes:
-    - 1
+    - 0.4
   - hitTimes:
-    - 0.8
+    - 0.4
   - hitTimes:
-    - 0.55
+    - 0.4

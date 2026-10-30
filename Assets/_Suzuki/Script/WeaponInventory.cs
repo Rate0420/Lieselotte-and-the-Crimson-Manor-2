@@ -67,7 +67,7 @@ public class WeaponInventory : MonoBehaviour
             if (vermilionTestMode)
             {
                 var instance = new WeaponInstance(
-                    vermilion_TestTemplate,
+                    rapierTemplate,
                     defaultEnchantmentDB
                 );
                 AddWeapon(instance);
@@ -86,7 +86,7 @@ public class WeaponInventory : MonoBehaviour
         else if (vermilionTestMode)
         {
             var instance = new WeaponInstance(
-    vermilion_TestTemplate,
+    rapierTemplate,
     defaultEnchantmentDB
 );
             weapons[0] = instance;
