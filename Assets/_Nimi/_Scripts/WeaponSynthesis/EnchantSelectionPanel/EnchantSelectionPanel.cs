@@ -1,0 +1,270 @@
+using System;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+
+/// <summary>合成候補から最大3枠を選ぶ。候補が多い場合は6件ずつ表示する。</summary>
+public class EnchantSelectionPanel : MonoBehaviour
+{
+    [Header("生成設定")]
+    [Tooltip("生成場所の親オブジェクトを指定")]
+    [SerializeField] private Transform _printed;
+    [Tooltip("生成するデータプレハブ")]
+    [SerializeField] private EnchantSelectionData _dataPrefab;
+
+    [Header("選択数表示")]
+    [SerializeField] private TMP_Text _selectCountText;
+
+
+    [Header("ページ")]
+    [SerializeField] private TMP_Text _pagenumberText;
+    [SerializeField] private GameObject _previousPage;
+    [SerializeField] private GameObject _nextPage;
+
+    [Header("プレビュー")]
+    [SerializeField] private WeaponsPreviewPlate _previewPlate;
+
+    // 生成された表示行を保持し、ページ切替時も再利用する。
+    private readonly List<EnchantSelectionData> _dataList = new();
+    private IReadOnlyList<EnchantmentSlot> _candidates = Array.Empty<EnchantmentSlot>();
+    // ページをまたいで候補全体の番号を選択順に保持し、Bで最後の選択を解除できるようにする。
+    private readonly List<int> _selectedEnchantIndexes = new();
+    private bool _interactionEnabled;
+    private int _pageIndex;
+    private UnityEngine.UI.Button _previousPageButton;
+    private UnityEngine.UI.Button _nextPageButton;
+    private const int MaxSelectCount = 3;
+    private const int PageSize = 6;
+
+    public event Action PageChanged;
+    public int CandidateCount => _candidates.Count;
+    public int PageCount => Math.Max(1, (_candidates.Count + PageSize - 1) / PageSize);
+    private int PageStart => _pageIndex * PageSize;
+    private int VisibleCount => Math.Min(PageSize, _candidates.Count - PageStart);
+    public UnityEngine.UI.Selectable FirstSelectable => VisibleCount > 0 ? _dataList[0].Selectable : null;
+
+    private void Awake()
+    {
+        // Inspectorで指定した既存UIを使用する。Buttonがある場合はクリック操作も接続する。
+        _previousPageButton = _previousPage != null ? _previousPage.GetComponent<UnityEngine.UI.Button>() : null;
+        _nextPageButton = _nextPage != null ? _nextPage.GetComponent<UnityEngine.UI.Button>() : null;
+        if (_previousPageButton != null) _previousPageButton.onClick.AddListener(OnPreviousPage);
+        if (_nextPageButton != null) _nextPageButton.onClick.AddListener(OnNextPage);
+        UpdatePageControls();
+    }
+
+    private void OnDestroy()
+    {
+        if (_previousPageButton != null) _previousPageButton.onClick.RemoveListener(OnPreviousPage);
+        if (_nextPageButton != null) _nextPageButton.onClick.RemoveListener(OnNextPage);
+    }
+
+    private void OnPreviousPage() => ChangePage(-1);
+    private void OnNextPage() => ChangePage(1);
+
+    /// <summary>素材変更時に選択をリセットし、「なし」を含まない候補一覧を設定する。</summary>
+    public void SetUp(IReadOnlyList<EnchantmentSlot> enchantments)
+    {
+        Clear();
+        if (_printed == null || _dataPrefab == null)
+        {
+            Debug.LogError("生成先または付呪表示プレハブが設定されていません。", this);
+            return;
+        }
+        if (enchantments == null) return;
+        // 合成側で空枠を除外済みの候補は、そのまま参照して表示する。
+        if (enchantments is WeaponSynthesisCandidates)
+            _candidates = enchantments;
+        else
+        {
+            var candidates = new List<EnchantmentSlot>();
+            foreach (var slot in enchantments)
+                if (slot != null && slot.enchantName != EnchantmentDataBase.EnchantmentName.なし) candidates.Add(slot);
+            _candidates = candidates;
+        }
+        RenderPage();
+    }
+
+    /// <summary>付呪の名前とレベルを表示用に整形する。空枠の表示は「なし」に統一する。</summary>
+    public static string FormatEnchantment(EnchantmentSlot slot)
+    {
+        return slot == null || slot.enchantName == EnchantmentDataBase.EnchantmentName.なし
+            ? "なし" : $"{slot.enchantName} + {slot.enchantLevel}";
+    }
+
+    /// <summary>現在のページに対応する最大6件だけを、生成済みの表示行へ割り当てる。</summary>
+    private void RenderPage()
+    {
+        for (int i = 0; i < _dataList.Count; i++)
+            if (_dataList[i] != null) _dataList[i].gameObject.SetActive(false);
+        for (int i = 0; i < VisibleCount; i++)
+        {
+            // ページ内の行番号を候補一覧全体の番号へ変換する。
+            int index = PageStart + i;
+            var data = GetOrCreateData(i);
+            data.SetUp(index, FormatEnchantment(_candidates[index]));
+            data.Selected(_selectedEnchantIndexes.Contains(index));
+            data.gameObject.SetActive(true);
+        }
+        SetInteraction(_interactionEnabled);
+    }
+
+    private EnchantSelectionData GetOrCreateData(int index)
+    {
+        if (index < _dataList.Count && _dataList[index] != null) return _dataList[index];
+        var data = Instantiate(_dataPrefab, _printed);
+        data.OnSelectClicked += SelectEnchantment;
+        while (_dataList.Count <= index) _dataList.Add(null);
+        _dataList[index] = data;
+        return data;
+    }
+
+    /// <summary>付呪の選択・解除を受け付け、4個目の選択は元の表示に戻して拒否する。</summary>
+    private void SelectEnchantment(int index, bool isSelected)
+    {
+        int row = index - PageStart;
+        if (row < 0 || row >= VisibleCount) return;
+        if (!_interactionEnabled || (isSelected && !_selectedEnchantIndexes.Contains(index) &&
+            _selectedEnchantIndexes.Count >= MaxSelectCount))
+        {
+            _dataList[row].Selected(_selectedEnchantIndexes.Contains(index));
+            return;
+        }
+        if (isSelected)
+        {
+            if (!_selectedEnchantIndexes.Contains(index)) _selectedEnchantIndexes.Add(index);
+        }
+        else _selectedEnchantIndexes.Remove(index);
+        UpdatePreview();
+    }
+
+    /// <summary>ページを切り替え、コントローラー側へカーソルの移動が必要なことを通知する。</summary>
+    public bool ChangePage(int direction)
+    {
+        if (!_interactionEnabled) return false;
+        int page = (int)Math.Max(0, Math.Min(PageCount - 1, (long)_pageIndex + direction));
+        if (page == _pageIndex) return false;
+        _pageIndex = page;
+        RenderPage();
+        PageChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>B入力で最後に選んだ付呪を解除する。別ページの候補ならそのページも表示する。</summary>
+    public bool UndoLastSelection()
+    {
+        if (_selectedEnchantIndexes.Count == 0) return false;
+        int index = _selectedEnchantIndexes[_selectedEnchantIndexes.Count - 1];
+        _selectedEnchantIndexes.RemoveAt(_selectedEnchantIndexes.Count - 1);
+        if (index / PageSize != _pageIndex)
+        {
+            _pageIndex = index / PageSize;
+            RenderPage();
+            PageChanged?.Invoke();
+        }
+        else _dataList[index - PageStart].Selected(false);
+        UpdatePreview();
+        return true;
+    }
+
+    /// <summary>選択順で付呪のコピーを返す。完成武器が候補や素材のスロットを直接共有しないようにする。</summary>
+    public List<EnchantmentSlot> GetSelectedEnchantments()
+    {
+        var result = new List<EnchantmentSlot>();
+        foreach (int index in _selectedEnchantIndexes)
+        {
+            var slot = _candidates[index];
+            result.Add(new EnchantmentSlot(slot.enchantName, slot.enchantLevel));
+        }
+        return result;
+    }
+
+    /// <summary>付呪選択中だけ入力を有効にし、グリッドの列数に合わせて十字キーの移動先を設定する。</summary>
+    public void SetInteraction(bool enabled)
+    {
+        _interactionEnabled = enabled;
+        var grid = _printed != null ? _printed.GetComponent<UnityEngine.UI.GridLayoutGroup>() : null;
+        int columns = grid != null && grid.constraint == UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount
+            ? Mathf.Max(1, grid.constraintCount) : 3;
+        for (int i = 0; i < VisibleCount; i++)
+        {
+            var selectable = _dataList[i].Selectable;
+            if (selectable == null) continue;
+            selectable.interactable = enabled;
+            selectable.navigation = new UnityEngine.UI.Navigation
+            {
+                mode = UnityEngine.UI.Navigation.Mode.Explicit,
+                selectOnLeft = i % columns > 0 ? VisibleSelectable(i - 1) : null,
+                selectOnRight = i % columns < columns - 1 ? VisibleSelectable(i + 1) : null,
+                selectOnUp = VisibleSelectable(i - columns),
+                selectOnDown = i / columns < (VisibleCount - 1) / columns
+                    ? VisibleSelectable(Math.Min(i + columns, VisibleCount - 1)) : null
+            };
+        }
+        UpdatePageControls();
+    }
+
+    private UnityEngine.UI.Selectable VisibleSelectable(int index)
+    {
+        return index >= 0 && index < VisibleCount ? _dataList[index].Selectable : null;
+    }
+
+    /// <summary>既存のページ番号を更新し、移動先のない側の矢印を非表示にする。</summary>
+    private void UpdatePageControls()
+    {
+        bool hasPrevious = _pageIndex > 0;
+        bool hasNext = _pageIndex < PageCount - 1;
+        if (_pagenumberText != null)
+        {
+            _pagenumberText.gameObject.SetActive(PageCount > 1);
+            _pagenumberText.text = $"{_pageIndex + 1} / {PageCount}";
+        }
+        if (_previousPage != null) _previousPage.SetActive(hasPrevious);
+        if (_nextPage != null) _nextPage.SetActive(hasNext);
+        // 武器選択中は表示状態を保ち、クリックで付呪ページを操作できないようにする。
+        if (_previousPageButton != null) _previousPageButton.interactable = _interactionEnabled && hasPrevious;
+        if (_nextPageButton != null) _nextPageButton.interactable = _interactionEnabled && hasNext;
+    }
+
+    /// <summary>デバッグ用の候補番号を重複なく最大3件選び、最初の選択が見えるページへ移動する。</summary>
+    public void SetSelectedEnchantmentsForDebug(List<int> enchantIndexes)
+    {
+        _selectedEnchantIndexes.Clear();
+        if (enchantIndexes != null)
+            foreach (int index in enchantIndexes)
+            {
+                if (_selectedEnchantIndexes.Count == MaxSelectCount) break;
+                if (index >= 0 && index < _candidates.Count && !_selectedEnchantIndexes.Contains(index))
+                    _selectedEnchantIndexes.Add(index);
+            }
+        _pageIndex = _selectedEnchantIndexes.Count > 0 ? _selectedEnchantIndexes[0] / PageSize : 0;
+        RenderPage();
+        UpdatePreview();
+    }
+
+    /// <summary>選択数と完成武器の付呪プレビューを、選択した順番で更新する。</summary>
+    private void UpdatePreview()
+    {
+        if (_selectCountText != null) _selectCountText.text = $"{_selectedEnchantIndexes.Count} / {MaxSelectCount}";
+        if (_previewPlate == null) return;
+        var texts = new List<string>();
+        foreach (int index in _selectedEnchantIndexes) texts.Add(FormatEnchantment(_candidates[index]));
+        _previewPlate.SetResultEnchantments(texts);
+    }
+
+    /// <summary>生成済みの行は再利用のため残し、候補・選択・ページ位置だけを初期化する。</summary>
+    public void Clear()
+    {
+        foreach (var data in _dataList)
+        {
+            if (data == null) continue;
+            data.Selected(false);
+            data.gameObject.SetActive(false);
+        }
+        _candidates = Array.Empty<EnchantmentSlot>();
+        _pageIndex = 0;
+        _selectedEnchantIndexes.Clear();
+        UpdatePageControls();
+        UpdatePreview();
+    }
+}

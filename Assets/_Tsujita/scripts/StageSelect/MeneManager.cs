@@ -47,6 +47,8 @@ public class MeneManager : MonoBehaviour
     /// </summary>
     public void ShowHome()
     {
+        if (weponPanel != null) weponPanel.SetActive(false);
+        if (synthesisPanel != null) synthesisPanel.SetActive(false);
         startPanel.SetActive(true);
         stagePanel.SetActive(false);
         _panelFlg = true;
@@ -75,6 +77,8 @@ public class MeneManager : MonoBehaviour
     /// </summary>
     public void ShowWepon() 
     {
+        _stageFlg = false;
+        if (synthesisPanel != null) synthesisPanel.SetActive(false);
         startPanel.SetActive(false);
         weponPanel.SetActive(true);
         _panelFlg = false;
@@ -87,10 +91,12 @@ public class MeneManager : MonoBehaviour
     /// </summary>
     public void ShowSynthesis()
     {
+        if (weponPanel != null) weponPanel.SetActive(false);
+        _stageFlg = false;
         startPanel.SetActive(false);
         synthesisPanel.SetActive(true);
         _panelFlg = false;
-        soundPush.DecisionPush();
+        //soundPush.DecisionPush();
     }
 
     // ‹Ù‹}

@@ -201,12 +201,14 @@ public class WeaponInstance
 public class EnchantmentSlot
 {
     public EnchantmentDataBase.EnchantmentName enchantName;
-    [Range(1, 11)] public int enchantLevel; // 0 = Lv1
+
+
+    [Min(1)] public int enchantLevel; // Lv1以上。上限は設けない。
 
     public EnchantmentSlot(EnchantmentDataBase.EnchantmentName name, int level )
     {
         enchantName = name;
-        enchantLevel = Mathf.Clamp(level, 1, 11);
+        enchantLevel = Mathf.Max(1, level);
     }
 
     /// <summary>
@@ -232,14 +234,17 @@ public class EnchantmentSlot
         var data = enchantmentDB.EnchantmentData
             .Find(d => d.Name == enchantName);
 
-        if (data == null || data.Efficacy == null)
+        if (data == null || data.Efficacy == null || data.Efficacy.Length == 0 || enchantLevel < 0)
             return 0;
 
-        if (enchantLevel >= data.Efficacy.Length)
-            return 0;
+        // データがあるレベルは設定値を使い、上限を超えた分だけ最後のレベル間の増加量で延長する。
+        int maxLevel = data.Efficacy.Length - 1;
+        if (enchantLevel <= maxLevel) return data.Efficacy[enchantLevel];
+        if (maxLevel == 0) return data.Efficacy[0];
 
-        //return enchantLevel;
-        //こうか？
-        return data.Efficacy[enchantLevel];
+        float lastValue = data.Efficacy[maxLevel];
+        // 移動速度なら+9の1.8と+10の2.0から増分0.2を求め、+11を2.2として適用する。
+        float increment = lastValue - data.Efficacy[maxLevel - 1];
+        return lastValue + increment * (enchantLevel - maxLevel);
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class WeaponInventoryUI : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class WeaponInventoryUI : MonoBehaviour
     [Header("武器詳細UI")]
     [SerializeField] private RawImage selectedWeaponIcon;
     [SerializeField] private Text descriptionText;
-    [SerializeField] private Text[] enchantmentTexts;
+    [SerializeField] private TMP_Text[] enchantmentTexts;
 
     [SerializeField] private RawImage equipmentWeaponIcon;
     [SerializeField] private Text[] equipmentEnchantmentTexts;
@@ -172,7 +173,7 @@ public class WeaponInventoryUI : MonoBehaviour
             if (!gameObject.activeInHierarchy) return;
             Debug.Log("戻るボタンが押されました");
             // 一つ上の親オブジェクトのsetActiveをfalseにする
-            transform.parent.gameObject.SetActive(false);
+            transform.gameObject.SetActive(false);
             soundPush.CancelPush();
             panel.SetActive(true);
             StageSelectMenu.SetActive(false);
