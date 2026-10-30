@@ -3,18 +3,19 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>合成素材2本と完成武器のプレビューを表示する。候補計算や合成の確定は担当しない。</summary>
 public class WeaponsPreviewPlate : MonoBehaviour
 {
     [Header("プレビュー01")]
-    [SerializeField] private Image _icon01;
+    [SerializeField] private UnityEngine.UI.Image _icon01;
     [SerializeField] private TMP_Text[] _enchantmentTexts01 = new TMP_Text[3];
 
     [Header("プレビュー02")]
-    [SerializeField] private Image _icon02;
+    [SerializeField] private UnityEngine.UI.Image _icon02;
     [SerializeField] private TMP_Text[] _enchantmentTexts02 = new TMP_Text[3];
 
     [Header("合成結果プレビュー03")]
-    [SerializeField] private Image _icon03;
+    [SerializeField] private UnityEngine.UI.Image _icon03;
     [SerializeField] private TMP_Text[] _enchantmentTexts03 = new TMP_Text[3];
 
     /// <summary>
@@ -22,7 +23,7 @@ public class WeaponsPreviewPlate : MonoBehaviour
     /// </summary>
     public void SetWeaponPreview(int previewIndex, Sprite icon, List<string> enchantments)
     {
-        Image targetIcon;
+        UnityEngine.UI.Image targetIcon;
         TMP_Text[] targetTexts;
 
         if (previewIndex == 0)
@@ -74,7 +75,7 @@ public class WeaponsPreviewPlate : MonoBehaviour
         SetEnchantmentTexts(_enchantmentTexts03, null);
     }
 
-    private void SetIcon(Image iconImage, Sprite icon)
+    private void SetIcon(UnityEngine.UI.Image iconImage, Sprite icon)
     {
         if (iconImage == null) return;
 
@@ -90,9 +91,10 @@ public class WeaponsPreviewPlate : MonoBehaviour
         {
             if (texts[i] == null) continue;
 
+            // 選んだ付呪が3個未満でも、残りの枠は「なし」として必ず表示する。
             texts[i].text = enchantments != null && i < enchantments.Count
                 ? enchantments[i]
-                : string.Empty;
+                : "なし";
         }
     }
 }

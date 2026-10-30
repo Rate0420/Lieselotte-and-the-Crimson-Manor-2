@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="WeaponInventoryDebugWindow.uss" />
+    <ui:ScrollView class="debug-root">
+        <ui:Label text="所持武器を追加" class="heading" />
+        <ui:HelpBox name="contextHelp" message-type="Info" />
+        <ui:DropdownField name="weaponField" label="武器" class="weapon-choice" />
+        <ui:Image name="weaponIcon" scale-mode="ScaleToFit" picking-mode="Ignore" class="weapon-icon" />
+        <ui:Label text="付呪（最大3枠）" class="section-heading" />
+        <ui:VisualElement name="enchantmentRows" />
+        <ui:Button name="addButton" text="所持武器に1本追加" class="add-button" />
+        <ui:HelpBox name="resultHelp" message-type="Info" class="is-hidden" />
+    </ui:ScrollView>
+</ui:UXML>

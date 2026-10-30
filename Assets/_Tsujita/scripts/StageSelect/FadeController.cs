@@ -35,7 +35,10 @@ public class FadeController : MonoBehaviour
     {
         Debug.Log("インだよ");
         IsFading = true;
-        inputPlayer.enabled = false;
+        if (inputPlayer != null)
+        {
+            inputPlayer.enabled = false;
+        }
         EventSystem.current.enabled = false;
 
         float time = 0f;
@@ -53,7 +56,11 @@ public class FadeController : MonoBehaviour
         fadeImage.anchoredPosition = centerPos;
 
         IsFading = false;
-        inputPlayer.enabled = true;
+
+        if (inputPlayer != null)
+        {
+            inputPlayer.enabled = true;
+        }
     }
     /// <summary>
     /// フェードアウト（中央 → 左）
