@@ -29,6 +29,12 @@ public class EnchantSelectionData : MonoBehaviour
             _selectedToggle.onValueChanged.AddListener(isSelected =>
             {
                 if (_isUpdatingToggle) return;
+                if (!NimiUIConfirmInput.TryConsume())
+                {
+                    // 武器選択時に押したAを保持したまま、付呪が選択されることも防ぐ。
+                    _selectedToggle.SetIsOnWithoutNotify(!isSelected);
+                    return;
+                }
 
                 OnSelectClicked?.Invoke(EnchantmentIndex, isSelected);
             });

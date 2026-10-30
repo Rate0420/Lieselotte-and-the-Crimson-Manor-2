@@ -36,6 +36,12 @@ public class InventoryWeponDataView : MonoBehaviour
             _selectedToggle.onValueChanged.AddListener(isSelected =>
             {
                 if (_isUpdatingToggle) return;
+                if (!NimiUIConfirmInput.TryConsume())
+                {
+                    // 長押し中の再通知では、Toggleの表示も変更前の状態へ戻す。
+                    _selectedToggle.SetIsOnWithoutNotify(!isSelected);
+                    return;
+                }
 
                 OnSelectClicked?.Invoke(this);
             });

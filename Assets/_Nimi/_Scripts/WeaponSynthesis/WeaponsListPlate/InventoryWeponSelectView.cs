@@ -43,10 +43,13 @@ public class InventoryWeponSelectView : MonoBehaviour
 
     private void Awake()
     {
-        _backAction = new InputAction("SynthesisBack", InputActionType.Button, "<Gamepad>/buttonEast");
-        _synthesisAction = new InputAction("SynthesisStart", InputActionType.Button, "<Gamepad>/start");
-        _previousEnchantPageAction = new InputAction("SynthesisPreviousPage", InputActionType.Button, "<Gamepad>/leftShoulder");
-        _nextEnchantPageAction = new InputAction("SynthesisNextPage", InputActionType.Button, "<Gamepad>/rightShoulder");
+        // ボタンを押した瞬間だけ入力を受け付ける
+        const string pressOnly = "press(behavior=0)";
+
+        _backAction = new InputAction("SynthesisBack", InputActionType.Button, "<Gamepad>/buttonEast", interactions: pressOnly);
+        _synthesisAction = new InputAction("SynthesisStart", InputActionType.Button, "<Gamepad>/start", interactions: pressOnly);
+        _previousEnchantPageAction = new InputAction("SynthesisPreviousPage", InputActionType.Button, "<Gamepad>/leftShoulder", interactions: pressOnly);
+        _nextEnchantPageAction = new InputAction("SynthesisNextPage", InputActionType.Button, "<Gamepad>/rightShoulder", interactions: pressOnly);
         if (_enchantSelectionPanel != null) _enchantSelectionPanel.PageChanged += OnEnchantPageChanged;
         if (_resultView != null)
         {
