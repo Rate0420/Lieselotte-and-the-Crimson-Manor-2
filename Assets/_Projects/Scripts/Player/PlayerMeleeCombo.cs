@@ -12,6 +12,7 @@ public class PlayerMeleeCombo : MonoBehaviour
     public float[] animTimes;   // 各コンボアニメーションの時間
     public float[] comboColOffset;
     public bool isFirstAttack = true;
+    public bool isLastAttack = true;
     bool seFlg = false;
 
     // 現在の攻撃判定ウィンドウ
@@ -81,6 +82,7 @@ public class PlayerMeleeCombo : MonoBehaviour
 
         // ① 攻撃開始時に1回だけ ON
         isFirstAttack = true;
+        isLastAttack = (comboStep == playerManager.comboAnims.Length - 1);
         playerStatusManager.MeleeAtkOnOff(true);
 
         if (playerStatusManager.nowAtkState != "MeleeComboFinish") playerStatusManager.nowAtkState = "MeleeCombo";
@@ -187,7 +189,7 @@ public class PlayerMeleeCombo : MonoBehaviour
             playerManager.anim.speed = 1.0f;
         }
     }
-    
+
 
 
     public void Stop()
@@ -204,6 +206,7 @@ public class PlayerMeleeCombo : MonoBehaviour
             playerManager.ComboFlg = false;
             playerStatusManager.MeleeAtkOnOff(false);
             playerStatusManager.GB_AtkOnOff(false);   // ヒット判定が残らないようにする
+            activeHitWindow = -1;
             playerStatusManager.nowAtkState = "";
             seFlg = false;
         }

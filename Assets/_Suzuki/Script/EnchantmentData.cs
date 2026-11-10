@@ -36,10 +36,16 @@ public enum AffectedStat
     StaminaRecoveryRate,
     AttackPower,
     FirstAttackBoost,      // boolフラグ
+    FinishAttackBoost,
     CriticalDamage,
     AttackSpeed,
     MoveSpeed,
     ComboBufferTime,
     ParryBufferTime,
-    GuardStaminaCost
+    GuardStaminaCost,
+    //固有スキル
+    ParryDamage,
+    JGDamage,
+    ParryAtkUp,
+    JGAtkUP
 }

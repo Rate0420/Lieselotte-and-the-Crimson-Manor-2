@@ -25,7 +25,11 @@ public class WeaponInstance
     public float parryBufferTime;
     public float guardStaminaCost;
     public float firstAttackBoost;
+    public float finishAttackBoost;
     public float UniqueAttackBoost;
+    //固有スキルのステータス
+    public float ParryDamage;
+    public float ParryBoost;
 
     // 非シリアライズの参照テンプレート
     [NonSerialized] public WeaponTemplate weaponTemplate;
@@ -110,8 +114,15 @@ public class WeaponInstance
         comboBufferTime = weaponTemplate.baseComboGraceTime;
         parryBufferTime = weaponTemplate.baseParryReceptionTime;
         guardStaminaCost = weaponTemplate.baseGuradStaminaLoss;
-        firstAttackBoost = 1;
+        firstAttackBoost = 1f;
+        finishAttackBoost = 1f;
+        UniqueAttackBoost = 1f;
+        ParryDamage = 0f;
         WeaponType = weaponTemplate.weaponType;
+
+
+        ParryBoost = 1f;
+
     }
 
 
@@ -164,7 +175,10 @@ public class WeaponInstance
                     break;
 
                 case EnchantmentDataBase.EnchantmentName.初撃強化:
-                    firstAttackBoost += value; break;
+                    firstAttackBoost = value; break;
+
+                case EnchantmentDataBase.EnchantmentName.フィニッシュ強化:
+                    finishAttackBoost = value; break;
 
                 case EnchantmentDataBase.EnchantmentName.攻撃速度上昇:
                     attackSpeed += value;
@@ -172,7 +186,16 @@ public class WeaponInstance
 
                 case EnchantmentDataBase.EnchantmentName.戦技強化:
                     UniqueAttackBoost += value;
-                    break; 
+                    break;
+
+                case EnchantmentDataBase.EnchantmentName.パリィ時ダメージ:
+                    ParryDamage += value;
+                    break;
+
+                case EnchantmentDataBase.EnchantmentName.パリィ強化:
+                    ParryBoost += value;
+                    break;
+
             }
         }
 
@@ -201,14 +224,12 @@ public class WeaponInstance
 public class EnchantmentSlot
 {
     public EnchantmentDataBase.EnchantmentName enchantName;
+    [Range(1, 11)] public int enchantLevel; // 0 = Lv1
 
-
-    [Min(1)] public int enchantLevel; // Lv1以上。上限は設けない。
-
-    public EnchantmentSlot(EnchantmentDataBase.EnchantmentName name, int level )
+    public EnchantmentSlot(EnchantmentDataBase.EnchantmentName name, int level)
     {
         enchantName = name;
-        enchantLevel = Mathf.Max(1, level);
+        enchantLevel = Mathf.Clamp(level, 1, 11);
     }
 
     /// <summary>
@@ -234,17 +255,23 @@ public class EnchantmentSlot
         var data = enchantmentDB.EnchantmentData
             .Find(d => d.Name == enchantName);
 
-        if (data == null || data.Efficacy == null || data.Efficacy.Length == 0 || enchantLevel < 0)
+        if (data == null || data.Efficacy == null)
             return 0;
 
-        // データがあるレベルは設定値を使い、上限を超えた分だけ最後のレベル間の増加量で延長する。
-        int maxLevel = data.Efficacy.Length - 1;
-        if (enchantLevel <= maxLevel) return data.Efficacy[enchantLevel];
-        if (maxLevel == 0) return data.Efficacy[0];
+        if (enchantLevel >= data.Efficacy.Length)
+            return 0;
 
-        float lastValue = data.Efficacy[maxLevel];
-        // 移動速度なら+9の1.8と+10の2.0から増分0.2を求め、+11を2.2として適用する。
-        float increment = lastValue - data.Efficacy[maxLevel - 1];
-        return lastValue + increment * (enchantLevel - maxLevel);
+        //return enchantLevel;
+        //こうか？
+
+        Debug.Log(
+    $"DB={enchantmentDB.name}, " +
+    $"付呪={data.Name}, " +
+    $"Lv={enchantLevel}, " +
+    $"Element1={data.Efficacy[1]}, " +
+    $"取得値={data.Efficacy[enchantLevel]}"
+);
+
+        return data.Efficacy[enchantLevel];
     }
 }

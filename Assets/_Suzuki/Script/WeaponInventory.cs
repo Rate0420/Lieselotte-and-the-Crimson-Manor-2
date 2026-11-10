@@ -7,7 +7,7 @@ public class WeaponInventory : MonoBehaviour
     [SerializeField]
     private List<WeaponInstance> weapons = new List<WeaponInstance>();
 
-    
+
 
     // 初期装備の武器データ関連
     public WeaponTemplate sword_ShieldTemplate;
@@ -16,7 +16,7 @@ public class WeaponInventory : MonoBehaviour
     public WeaponTemplate vermilion;
 
     // 付呪データベース（初期付呪用）
-    [SerializeField]  public Enchantment defaultEnchantmentDB;
+    [SerializeField] public Enchantment defaultEnchantmentDB;
 
     public event Action OnInventoryChanged;
     public event Action OnEquipmentChanged;
@@ -72,28 +72,6 @@ public class WeaponInventory : MonoBehaviour
             AddWeapon(instance);
         }
         SaveInventory();
-
-        if (testFlag)
-        {
-            var instance = new WeaponInstance(
-                vermilion,
-                defaultEnchantmentDB
-            );
-            // 作った武器を0番目に書き換える
-            if (weapons.Count > 0)
-            {
-                weapons[0] = instance;
-            }
-            else
-            {
-                AddWeapon(instance);
-            }
-
-            // 装備位置を0に設定
-            equipmentIndex = 0;
-
-        }
-
 
     }
 
@@ -299,7 +277,7 @@ public class WeaponInventory : MonoBehaviour
             var instance = new WeaponInstance(template, defaultEnchantmentDB);
 
             var slots = new List<EnchantmentSlot>();
-            foreach(var e in w.enchantments)
+            foreach (var e in w.enchantments)
             {
                 slots.Add(new EnchantmentSlot(e.enchantName, e.enchantLevel));
             }
