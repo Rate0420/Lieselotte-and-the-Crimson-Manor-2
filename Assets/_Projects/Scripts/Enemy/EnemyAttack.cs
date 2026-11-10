@@ -74,6 +74,7 @@ public class EnemyAttack : Enemy_AttackBase
     void EndImmediately(EnemyController ec)
     {
         ec.EnableAttackCollider(false);
+        ec.HideAttackWarning();   // —\•\¦‚ªc‚ç‚È‚¢‚æ‚¤‚É‚·‚é
         ec.isAttackFinished = true;
     }
 

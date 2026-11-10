@@ -12,7 +12,11 @@ public class PlayerMeleeCombo : MonoBehaviour
     public float[] animTimes;   // 各コンボアニメーションの時間
     public float[] comboColOffset;
     public bool isFirstAttack = true;
+    public bool isLastAttack = true;
     bool seFlg = false;
+
+    // 現在の攻撃判定ウィンドウ
+    int activeHitWindow = -1;
 
     bool firstcheck = false;
 
@@ -21,7 +25,7 @@ public class PlayerMeleeCombo : MonoBehaviour
     public HitTiming[] comboHitData;
 
     // 仮システム
-    float ColResetTime = 0.1f;
+    float ColResetTime = 0.05f;
 
     public PlayerStatusManager playerStatusManager;
 
@@ -63,11 +67,14 @@ public class PlayerMeleeCombo : MonoBehaviour
         if (playerManager.dummyFlg) yield break;
         playerManager.ComboFlg = true;
 
+        // 弾き・サポートのバフをこの攻撃に持たせる(1振りごとに計算し、使い切りのバフはここで消費される)
+        playerStatusManager.BeginAttack();
+
         // 攻撃速度反映
         playerManager.anim.speed = attackSpeed;
 
         bufferedCombo = false;
-        playerManager.ContinuousPlayAnim(playerManager.comboAnims[comboStep], 0.2f);
+        playerManager.ContinuousPlayAnim(playerManager.comboAnims[comboStep], 0.05f);
         playerManager.faceController.PlayCustomExpression("attack", animTimes[comboStep]);
 
         comboTimer = 0f;
@@ -75,6 +82,7 @@ public class PlayerMeleeCombo : MonoBehaviour
 
         // ① 攻撃開始時に1回だけ ON
         isFirstAttack = true;
+        isLastAttack = (comboStep == playerManager.comboAnims.Length - 1);
         playerStatusManager.MeleeAtkOnOff(true);
 
         if (playerStatusManager.nowAtkState != "MeleeComboFinish") playerStatusManager.nowAtkState = "MeleeCombo";
@@ -84,51 +92,15 @@ public class PlayerMeleeCombo : MonoBehaviour
 
         //// ダメージ判定が終わる時間
         //float hitEnd = comboColOffset[comboStep] + ColResetTime;
-
+        //Debug.Log("コンボステップ: " + comboStep + ", アニメーション時間: " + comboColOffset[comboStep]);
 
         while (comboTimer < animTimes[comboStep])
         {
             comboTimer += Time.deltaTime * attackSpeed;
 
-            //// ダメージ判定のON/OFFは 1回だけ
-            //if (comboTimer >= hitStart && comboTimer < hitEnd)
-            //{
-            //    if (playerStatusManager.GB_Box.activeSelf == false)
-            //    {
-            //        if(comboStep != 0)
-            //        {
-            //            isFirstAttack = false;
-            //        }
-            //        // SE再生
-            //        int seIndex = Random.Range(0, 3);
-
-            //        switch(seIndex)
-            //        {
-            //            case 0:
-            //                SoundManager.Instance.PlaySE("攻撃音高");
-            //                break;
-            //            case 1:
-            //                SoundManager.Instance.PlaySE("攻撃音中");
-            //                break;
-            //            case 2:
-            //                SoundManager.Instance.PlaySE("攻撃音低");
-            //                break;
-            //        }
-            //    }
-
-            //    // 当たり判定中にしたい処理（あればここ）
-            //    playerStatusManager.GB_AtkOnOff(true);
-
-
-            //}
-            //else
-            //{
-            //    playerStatusManager.GB_AtkOnOff(false);
-            //}
-
-            bool hitActive = false;
-
             var hitList = comboHitData[comboStep].hitTimes;
+
+            int currentHitWindow = -1;
 
             for (int i = 0; i < hitList.Length; i++)
             {
@@ -137,35 +109,52 @@ public class PlayerMeleeCombo : MonoBehaviour
 
                 if (comboTimer >= start && comboTimer < end)
                 {
-                    hitActive = true;
+                    currentHitWindow = i;
                     break;
                 }
             }
 
-            if (hitActive)
+            bool hitActive = currentHitWindow >= 0;
+
+            // 判定ウィンドウが切り替わった瞬間
+            if (currentHitWindow != activeHitWindow)
             {
-                if (!playerStatusManager.GB_Box.activeSelf)
+                if (hitActive)
                 {
-                    if (comboStep != 0) isFirstAttack = false;
+                    // 1回目・2回目の判定開始をログで確認
+                    Debug.Log(
+                        $"Combo {comboStep + 1}: Hit Window {currentHitWindow + 1}"
+                    );
+
+                    // 攻撃音を判定開始時に1回だけ再生
+                    if (comboStep != 0)
+                    {
+                        isFirstAttack = false;
+                    }
 
                     int seIndex = Random.Range(0, 3);
 
                     switch (seIndex)
                     {
-                        case 0: SoundManager.Instance.PlaySE("攻撃音高"); break;
-                        case 1: SoundManager.Instance.PlaySE("攻撃音中"); break;
-                        case 2: SoundManager.Instance.PlaySE("攻撃音低"); break;
+                        case 0:
+                            SoundManager.Instance.PlaySE("攻撃音高");
+                            break;
+                        case 1:
+                            SoundManager.Instance.PlaySE("攻撃音中");
+                            break;
+                        case 2:
+                            SoundManager.Instance.PlaySE("攻撃音低");
+                            break;
                     }
                 }
 
-                playerStatusManager.GB_AtkOnOff(true);
-            }
-            else
-            {
-                playerStatusManager.GB_AtkOnOff(false);
+                activeHitWindow = currentHitWindow;
             }
 
-            // 次のコンボ入力（予約）
+            // 判定のON/OFF
+            playerStatusManager.GB_AtkOnOff(hitActive);
+
+            // 次のコンボ入力を予約
             if (attackButtonPressedThisFrame)
             {
                 bufferedCombo = true;
@@ -175,9 +164,10 @@ public class PlayerMeleeCombo : MonoBehaviour
             yield return null;
         }
 
-        // ② 攻撃アニメーション終了時に1回だけ OFF
+        // 攻撃アニメーション終了時
         playerStatusManager.MeleeAtkOnOff(false);
-        playerStatusManager.GB_AtkOnOff(false);   // ヒット判定が残らないようにする
+        playerStatusManager.GB_AtkOnOff(false);
+        activeHitWindow = -1;
 
         // 次のコンボへ
         if (bufferedCombo)
@@ -185,7 +175,9 @@ public class PlayerMeleeCombo : MonoBehaviour
             comboStep = (comboStep + 1) % playerManager.comboAnims.Length;
 
             if (comboStep == playerManager.comboAnims.Length - 1)
+            {
                 playerStatusManager.nowAtkState = "MeleeComboFinish";
+            }
 
             currentCoroutine = StartCoroutine(ComboAttack());
         }
@@ -197,6 +189,7 @@ public class PlayerMeleeCombo : MonoBehaviour
             playerManager.anim.speed = 1.0f;
         }
     }
+
 
 
     public void Stop()
@@ -213,6 +206,7 @@ public class PlayerMeleeCombo : MonoBehaviour
             playerManager.ComboFlg = false;
             playerStatusManager.MeleeAtkOnOff(false);
             playerStatusManager.GB_AtkOnOff(false);   // ヒット判定が残らないようにする
+            activeHitWindow = -1;
             playerStatusManager.nowAtkState = "";
             seFlg = false;
         }

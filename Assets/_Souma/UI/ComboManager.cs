@@ -38,14 +38,15 @@ public class ComboManager : MonoBehaviour
 
     void Update()
     {
-        if(!comboTimerFlg) return;
+        if (!comboTimerFlg) return;
         nowComboTime -= Time.deltaTime;
         // 割合を計算し、スライダーに渡す
         float ratio = nowComboTime / comboDuration;
         comboSlider.value = ratio;
 
         // 継続時間が過ぎたらコンボをリセットする
-        if (comboSlider.value == 0) comboReset();
+        // コンボ中だけ判定する(コンボが無い間に毎フレームcomboResetが走り、MeleeAtkを上書きするのを防ぐ)
+        if (nowCombo > 0 && nowComboTime <= 0) comboReset();
     }
 
     /// <summary>
@@ -53,6 +54,8 @@ public class ComboManager : MonoBehaviour
     /// </summary>
     public void ComboContinues()
     {
+        // コンボ開始時点の攻撃力を基準にする(StartとPlayerStatusManager.Startの実行順に依存しないようにする)
+        if (nowCombo == 0) baseMeleeAtk = playerManager.playerStatusManager.MeleeAtk;
         nowComboTime = comboDuration;
         nowCombo++;
         uniqueCombo++;

@@ -16,7 +16,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fb71b4eb6bf05fe4a9fd4349abea161c, type: 2}
   - {fileID: 11400000, guid: 2854d0f2d123f6d43b758db15b94eff5, type: 2}
   - {fileID: 11400000, guid: 7aefa3628f80f5440bf4d272c9d35b03, type: 2}
-  enchantmentDatas:
-  - {fileID: 11400000, guid: 49f1b19878da54d488f06cb33dad463b, type: 2}
-  - {fileID: 11400000, guid: acebb561cb0fd944891fa0c709fd9c62, type: 2}
-  - {fileID: 11400000, guid: c89289fa05f5d2b49950b6e0c1abebeb, type: 2}
+  - {fileID: 11400000, guid: 7da5d6ff2b6bf8644947b5f09709da38, type: 2}

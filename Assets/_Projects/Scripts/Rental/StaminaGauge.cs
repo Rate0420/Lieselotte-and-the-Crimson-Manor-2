@@ -24,18 +24,21 @@ public class StaminaGauge : MonoBehaviour
     void Update()
     {
         // 回復
-        if (!playerManager.GuardFlg)
+        // ニュートラル状態(ガード中・被弾中・ダウン中ではない)のときだけ回復する
+        if (playerManager.IsNeutral)
         {
             currentStamina += Time.deltaTime * recoverySpeed;
             if (currentStamina > maxStamina)
                 currentStamina = maxStamina;
         }
 
+#if UNITY_EDITOR
         // デバッグ消費
         if (Input.GetKeyDown(KeyCode.Return))
         {
             ConsumeStamina(cost);
         }
+#endif
 
         // FillAmountを滑らかに追従させる
         float targetFill = currentStamina / maxStamina;

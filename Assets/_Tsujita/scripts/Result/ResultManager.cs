@@ -1,7 +1,5 @@
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class ResultManager : MonoBehaviour
 {
@@ -110,6 +108,9 @@ public class ResultManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    ///  最終ステージクリアでシルエットからカラーに変更
+    /// </summary>
     private void ImageChange()
     {
         if(stageNo == 5)

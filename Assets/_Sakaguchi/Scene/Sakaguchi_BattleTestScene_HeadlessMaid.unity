@@ -612,7 +612,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_ActionEvents.Array.size
-      value: 15
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_ActionEvents.Array.data[3].m_ActionId
@@ -731,6 +731,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1114027155}
@@ -762,6 +766,10 @@ PrefabInstance:
       propertyPath: m_ActionEvents.Array.data[14].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1288948992}
+    - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1114027155}
     - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_ActionEvents.Array.data[8].m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
@@ -811,6 +819,10 @@ PrefabInstance:
       value: OnLT
       objectReference: {fileID: 0}
     - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: DodgeAction
+      objectReference: {fileID: 0}
+    - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: PlayerManager, Assembly-CSharp
       objectReference: {fileID: 0}
@@ -843,6 +855,10 @@ PrefabInstance:
       value: GameMenuPanel, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: PlayerManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_ActionEvents.Array.data[4].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
@@ -872,6 +888,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
       propertyPath: m_ActionEvents.Array.data[14].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 6572986369510235749, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 7003629507037501111, guid: 1c4af966b2ee0354aae984901323ccec, type: 3}
@@ -8929,6 +8949,18 @@ PrefabInstance:
       propertyPath: enemyPostureGauge
       value: 
       objectReference: {fileID: 1609904735}
+    - target: {fileID: 3940679882832912480, guid: f0477fb925ba36c43b0306095a03e623, type: 3}
+      propertyPath: 'enemyAttacks.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: ec51768b04d4bb14982ae01efc6cfb35, type: 2}
+    - target: {fileID: 3940679882832912480, guid: f0477fb925ba36c43b0306095a03e623, type: 3}
+      propertyPath: 'enemyAttacks.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2b0f74b90d7d33c44bba834d0452952e, type: 2}
+    - target: {fileID: 3940679882832912480, guid: f0477fb925ba36c43b0306095a03e623, type: 3}
+      propertyPath: 'enemyAttacks.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 885dd421ae49fbb46a4a28fca485f930, type: 2}
     - target: {fileID: 5624024070564606593, guid: f0477fb925ba36c43b0306095a03e623, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

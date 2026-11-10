@@ -31,11 +31,13 @@ public class MeneManager : MonoBehaviour
 
     public void Awake()
     {
-        inventory.LoadInventory();
+
     }
 
     public void Start()
     {
+        inventory = WeaponInventory.Instance;
+        inventory.LoadInventory();
         SoundManager.Instance.PlayBGM("SelectBGM");
         fadeObd.SetActive(true);
         _panelFlg = true;

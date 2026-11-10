@@ -12,6 +12,8 @@ public class EnchantmentEfficacy : MonoBehaviour
     [SerializeField] int tablesNo;      // テーブルの番号
     [SerializeField] int slot;
 
+    private int enchantLevel;
+
     void Start()
     {
         // 付呪関連の初期化処理
@@ -130,7 +132,16 @@ public class EnchantmentEfficacy : MonoBehaviour
         for (int i = 0; i < slot; i++)
         {
             var nameEnum = (EnchantmentDataBase.EnchantmentName)enchantmentEfficacy[i, 0];
-            var enchantmentLevel = 0;
+            
+            // エンチャントレベルの抽選
+            if (ScoreData.instance.rankNoDate == 0)
+                enchantLevel = Random.Range(1, 5);
+            else if (ScoreData.instance.rankNoDate == 1)
+                enchantLevel = Random.Range(0, 4);
+            else
+                enchantLevel = 0;
+
+            var enchantmentLevel = enchantLevel;
 
             results[i] = new EnchantmentSlot(nameEnum, enchantmentLevel);
         }

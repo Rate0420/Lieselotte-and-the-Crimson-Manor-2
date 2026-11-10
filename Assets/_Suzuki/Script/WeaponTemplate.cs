@@ -8,7 +8,7 @@ public enum WeaponType
     sword_Shield,
     greatsword,
     rapier,
-
+    vermilion1,
     // ƒJƒeƒSƒŠ[‚ğ‘‚â‚·‚È‚ç‚±‚±‚ğ’Ç‰Á
 }
 

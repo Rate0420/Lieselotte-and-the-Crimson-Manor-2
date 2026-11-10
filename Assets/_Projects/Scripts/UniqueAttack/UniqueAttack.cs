@@ -22,7 +22,10 @@ public class UniqueAttack : UniqueAttackBase
         if (psm.playerManager.comboManager.UniqueCombo >= UA_condition)
         {
             psm.playerManager.UAFlg = true;
-            psm.StartCoroutine(Atk(psm));
+            // 弾き・サポートのバフをこの攻撃に持たせる(使い切りのバフはここで消費される)
+            psm.BeginAttack();
+            // 緊急回避などで中断できるよう、コルーチンをPlayerManagerに持たせる
+            psm.playerManager.uniqueAttackCoroutine = psm.StartCoroutine(Atk(psm));
             // 発動したのでコンボ数をリセット
             psm.playerManager.comboManager.ResetUniqueCombo();
         }
@@ -48,7 +51,7 @@ public class UniqueAttack : UniqueAttackBase
             psm.UA_OnOff(true);
 
             // SE再生
-            int seIndex = Random.Range(0, 2);
+            int seIndex = Random.Range(0, 3);
 
             switch (seIndex)
             {
@@ -76,5 +79,6 @@ public class UniqueAttack : UniqueAttackBase
         psm.playerManager.comboManager.comboTimerFlg = true;
         psm.playerManager.GiveInvincible(invincibleTime);
         psm.playerManager.ChangeColorTrail(Color.white);
+        psm.playerManager.uniqueAttackCoroutine = null;
     }
 }
