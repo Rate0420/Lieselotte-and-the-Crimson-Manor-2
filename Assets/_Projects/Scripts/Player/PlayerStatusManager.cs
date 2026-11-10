@@ -122,8 +122,6 @@ public class PlayerStatusManager : MonoBehaviour
         MeleeBox.transform.position += weaponInstance.weaponTemplate.CharacterMotionSet.AttackColliderPosition;
 
         // プレイヤーのanimにtemplateのanimatorControllerを入れる
-
-
         playerManager.anim.runtimeAnimatorController = weaponInstance.weaponTemplate.CharacterMotionSet.AnimatorController;
         // 未完成部分もあるので注意(モーションなど)
 
@@ -227,6 +225,34 @@ public class PlayerStatusManager : MonoBehaviour
 
         // ここまできたらステータスの設定系が完了したってことだからここでGM的なのを呼んでゲーム開始した方がいいかも
 
+    }
+
+    /// <summary>
+    /// 攻撃を出すときに呼ぶ。弾きのバフ・サポートのバフを合わせた倍率をattackBuffRateに入れる。
+    /// 弾きのカウントと使い切りバフは、ここで消費される(攻撃の1振りごとに計算)。
+    /// </summary>
+    public void BeginAttack()
+    {
+        float rate = 1f;
+        if (playerManager.playerDeflect != null) rate *= playerManager.playerDeflect.ConsumeBuff();
+        Debug.Log("アタックバフレート" + playerManager.playerBuffs.GetRate(PlayerBuffs.BuffType.Attack));
+        if (playerManager.playerBuffs != null)
+        {
+            rate *= playerManager.playerBuffs.ConsumeNextAttackRate();
+            rate *= playerManager.playerBuffs.GetRate(PlayerBuffs.BuffType.Attack);
+            Debug.Log("アタックバフレート" + playerManager.playerBuffs.GetRate(PlayerBuffs.BuffType.Attack));
+        }
+        attackBuffRate = rate;
+    }
+
+    /// <summary>
+    /// HPを回復する(最大HPまで)
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (amount <= 0 || hpBar.nowHp <= 0) return;
+        hpBar.ApplyHeal(amount);
+        CurrentHp = hpBar.nowHp;
     }
 
     public void MeleeAtkOnOff(bool f)

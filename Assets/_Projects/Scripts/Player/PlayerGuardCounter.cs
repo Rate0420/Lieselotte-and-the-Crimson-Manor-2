@@ -17,8 +17,8 @@ public class PlayerGuardCounter : MonoBehaviour
 
     [Header("攻撃モーション")]
     [SerializeField] string animName = "GuardCounter";   // Animatorのステート名(武器ごとのAnimatorControllerに必要)
-    [SerializeField] float totalTime = 1.9f;        // 技全体の時間(秒)
-    [SerializeField] float hitStart = 0.83f;        // 判定が出るまでの時間(技開始から)
+    [SerializeField] float totalTime = 0.9f;        // 技全体の時間(秒)
+    [SerializeField] float hitStart = 0.25f;        // 判定が出るまでの時間(技開始から)
     [SerializeField] float hitTime = 0.15f;         // 判定の持続時間
     [SerializeField] string hitSeName = "攻撃音高";
 
@@ -35,7 +35,7 @@ public class PlayerGuardCounter : MonoBehaviour
     /// </summary>
     public int Damage
     {
-        get { return Mathf.FloorToInt(playerStatusManager.MeleeAtk * damageRate); }
+        get { return Mathf.FloorToInt(playerStatusManager.MeleeAtk * damageRate * playerStatusManager.attackBuffRate); }
     }
 
     public float PostureDamage
@@ -54,8 +54,7 @@ public class PlayerGuardCounter : MonoBehaviour
                 && playerManager.GuardFlg
                 && !playerManager.dummyFlg
                 && !playerManager.GameEndFlg
-                && playerStatusManager.CurrentVitality >= staminaCost
-                && playerManager.isLiselotte;
+                && playerStatusManager.CurrentVitality >= staminaCost;
         }
     }
 
@@ -92,6 +91,8 @@ public class PlayerGuardCounter : MonoBehaviour
     {
         // ガードを解いて技に入る
         playerManager.playerGuard.GuardRelease();
+        // サポートのバフ(攻撃力・使い切りの攻撃力)をこの攻撃に持たせる
+        playerStatusManager.BeginAttack();
         playerManager.GuardCounterFlg = true;
         playerStatusManager.StaminaRend(staminaCost);
         playerStatusManager.nowAtkState = "GuardCounter";

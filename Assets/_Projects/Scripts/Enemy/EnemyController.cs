@@ -176,7 +176,7 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     public void GetParry()
     {
-        enemyPostureGauge.ConsumePosture(20f);
+        enemyPostureGauge.ConsumePosture(20f * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage));
 
         // ƒpƒŠƒB—ûK
         if (tutorialManager != null)

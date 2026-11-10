@@ -13,6 +13,7 @@ public class WeaponInventory : MonoBehaviour
     public WeaponTemplate sword_ShieldTemplate;
     public WeaponTemplate greatswordTemplate;
     public WeaponTemplate rapierTemplate;
+    public WeaponTemplate vermilion;
 
     // 付呪データベース（初期付呪用）
     [SerializeField]  public Enchantment defaultEnchantmentDB;
@@ -75,7 +76,7 @@ public class WeaponInventory : MonoBehaviour
         if (testFlag)
         {
             var instance = new WeaponInstance(
-                greatswordTemplate,
+                vermilion,
                 defaultEnchantmentDB
             );
             // 作った武器を0番目に書き換える
@@ -316,6 +317,7 @@ public class WeaponInventory : MonoBehaviour
         if (sword_ShieldTemplate.weaponName == id) return sword_ShieldTemplate;
         if (greatswordTemplate.weaponName == id) return greatswordTemplate;
         if (rapierTemplate.weaponName == id) return rapierTemplate;
+        if (vermilion.weaponName == id) return vermilion;
         return null;
     }
 
