@@ -26,15 +26,18 @@ public class MeneManager : MonoBehaviour
 
     public bool _panelFlg;
     private bool _stageFlg;
+    private GameObject _homeReturnButton;
+    private Coroutine _pendingPanelFocus;
 
     public void Awake()
     {
-        inventory = WeaponInventory.Instance;
-        inventory.LoadInventory();
+
     }
 
     public void Start()
     {
+        inventory = WeaponInventory.Instance;
+        inventory.LoadInventory();
         SoundManager.Instance.PlayBGM("SelectBGM");
         fadeObd.SetActive(true);
         _panelFlg = true;
@@ -47,6 +50,7 @@ public class MeneManager : MonoBehaviour
     /// </summary>
     public void ShowHome()
     {
+        ClearPanelFocus();
         if (weponPanel != null) weponPanel.SetActive(false);
         if (synthesisPanel != null) synthesisPanel.SetActive(false);
         startPanel.SetActive(true);
@@ -55,7 +59,7 @@ public class MeneManager : MonoBehaviour
         _stageFlg = false;
         soundPush.CancelPush();
         //cursorSE.IgnoreNextSelection();
-        StartCoroutine(SelectAfterPanelSwitch(homeFirstButton));
+        _pendingPanelFocus = StartCoroutine(SelectAfterPanelSwitch(GetHomeFocus()));
     }
 
     /// <summary>
@@ -63,13 +67,15 @@ public class MeneManager : MonoBehaviour
     /// </summary>
     public void ShowStageSelect()
     {
+        RememberHomeFocus();
+        ClearPanelFocus();
         startPanel.SetActive(false);
         stagePanel.SetActive(true);
         _panelFlg = false;
         _stageFlg = true;
         soundPush.DecisionPush();
         //cursorSE.IgnoreNextSelection();
-        StartCoroutine(SelectAfterPanelSwitch(stageSelectFirstButton));
+        _pendingPanelFocus = StartCoroutine(SelectAfterPanelSwitch(stageSelectFirstButton));
     }
 
     /// <summary>
@@ -77,6 +83,8 @@ public class MeneManager : MonoBehaviour
     /// </summary>
     public void ShowWepon() 
     {
+        RememberHomeFocus();
+        ClearPanelFocus();
         _stageFlg = false;
         if (synthesisPanel != null) synthesisPanel.SetActive(false);
         startPanel.SetActive(false);
@@ -91,6 +99,8 @@ public class MeneManager : MonoBehaviour
     /// </summary>
     public void ShowSynthesis()
     {
+        RememberHomeFocus();
+        ClearPanelFocus();
         if (weponPanel != null) weponPanel.SetActive(false);
         _stageFlg = false;
         startPanel.SetActive(false);
@@ -131,11 +141,46 @@ public class MeneManager : MonoBehaviour
         }
     }
 
+    private void RememberHomeFocus()
+    {
+        if (!startPanel.activeInHierarchy) return;
+
+        var events = EventSystem.current;
+        var selected = events != null ? events.currentSelectedGameObject : null;
+        _homeReturnButton = IsAvailableHomeButton(selected) ? selected : null;
+    }
+
+    private GameObject GetHomeFocus()
+    {
+        return IsAvailableHomeButton(_homeReturnButton) ? _homeReturnButton : homeFirstButton;
+    }
+
+    private bool IsAvailableHomeButton(GameObject target)
+    {
+        return target != null && target.activeInHierarchy && target.transform.IsChildOf(startPanel.transform) &&
+            target.TryGetComponent<UnityEngine.UI.Button>(out var button) && button.isActiveAndEnabled && button.IsInteractable();
+    }
+
+    private void ClearPanelFocus()
+    {
+        if (_pendingPanelFocus != null)
+        {
+            StopCoroutine(_pendingPanelFocus);
+            _pendingPanelFocus = null;
+        }
+
+        // パネルを隠す前に選択を解除し、ボタンの選択色を元に戻す。
+        var events = EventSystem.current;
+        if (events != null) events.SetSelectedGameObject(null);
+    }
+
     private IEnumerator SelectAfterPanelSwitch(GameObject target)
     {
         yield return new WaitForEndOfFrame();
 
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(target);
+        _pendingPanelFocus = null;
+        var events = EventSystem.current;
+        if (events != null && target != null && target.activeInHierarchy)
+            events.SetSelectedGameObject(target);
     }
 }

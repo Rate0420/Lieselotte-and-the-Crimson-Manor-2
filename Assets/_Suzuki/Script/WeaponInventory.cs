@@ -7,15 +7,16 @@ public class WeaponInventory : MonoBehaviour
     [SerializeField]
     private List<WeaponInstance> weapons = new List<WeaponInstance>();
 
-    
+
 
     // 初期装備の武器データ関連
     public WeaponTemplate sword_ShieldTemplate;
     public WeaponTemplate greatswordTemplate;
     public WeaponTemplate rapierTemplate;
+    public WeaponTemplate vermilion;
 
     // 付呪データベース（初期付呪用）
-    [SerializeField]  public Enchantment defaultEnchantmentDB;
+    [SerializeField] public Enchantment defaultEnchantmentDB;
 
     public event Action OnInventoryChanged;
     public event Action OnEquipmentChanged;
@@ -25,6 +26,8 @@ public class WeaponInventory : MonoBehaviour
     public WeaponInstance testinstance;
 
     public int equipmentIndex = 0;
+
+    public bool testFlag = false;
 
     protected virtual string SavePath => Application.persistentDataPath + "/inventory.json";
 
@@ -274,7 +277,7 @@ public class WeaponInventory : MonoBehaviour
             var instance = new WeaponInstance(template, defaultEnchantmentDB);
 
             var slots = new List<EnchantmentSlot>();
-            foreach(var e in w.enchantments)
+            foreach (var e in w.enchantments)
             {
                 slots.Add(new EnchantmentSlot(e.enchantName, e.enchantLevel));
             }
@@ -292,6 +295,7 @@ public class WeaponInventory : MonoBehaviour
         if (sword_ShieldTemplate.weaponName == id) return sword_ShieldTemplate;
         if (greatswordTemplate.weaponName == id) return greatswordTemplate;
         if (rapierTemplate.weaponName == id) return rapierTemplate;
+        if (vermilion.weaponName == id) return vermilion;
         return null;
     }
 

@@ -90,7 +90,7 @@ public class EnemyController : MonoBehaviour
         if (lookDir.sqrMagnitude > 0.01f)
         {
             Quaternion targetRot = Quaternion.LookRotation(lookDir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotateSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotateSpeed * Time.fixedDeltaTime);
         }
     }
 
@@ -176,7 +176,14 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     public void GetParry()
     {
-        enemyPostureGauge.ConsumePosture(20f);
+        //enemyPostureGauge.ConsumePosture(20f * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage));
+        //// 基礎体幹ダメージ20 × パリィ強化倍率
+        //float postureDamage = 20f * psm.parryPostureBoost;
+        //// 敵の体勢ゲージを減らす
+        //enemyPostureGauge.ConsumePosture(postureDamage);
+
+        // 体幹の計算
+        enemyPostureGauge.ConsumePosture(20f * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage)*psm.parryPostureBoost);
 
         // パリィ練習
         if (tutorialManager != null)
@@ -309,13 +316,6 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public void EnableAttackCollider(bool onOff)
-    {
-        attackCollider.enabled = onOff;
-        var atkMesh = attackCollider.GetComponent<MeshRenderer>();
-        if (atkMesh != null) atkMesh.enabled = onOff;
-    }
-
     /// <summary>
     /// 体勢ゲージを削る(0になったらダウンさせる)。パリィ以外(ガードカウンターなど)の体勢削りで使う
     /// </summary>
@@ -328,6 +328,13 @@ public class EnemyController : MonoBehaviour
             isdowned = true;
             StartCoroutine(DownedState());
         }
+    }
+
+
+    public void EnableAttackCollider(bool onOff)
+    {
+        attackCollider.enabled = onOff;
+        attackCollider.GetComponent<MeshRenderer>().enabled = onOff;
     }
 
     public void CancelCurrentAttack()
@@ -371,21 +378,23 @@ public class EnemyController : MonoBehaviour
                     if (tutorialManager != null)
                         if (tutorialManager.tutorialNum == 0)
                             tutorialManager.TutorialCount();
-
-
                     break;
+
                 case "MeleeComboFinish":
-                    hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.attackBuffRate));
-                    comboManager.ComboContinues();
-                    if (tutorialManager != null)
-                        if (tutorialManager.tutorialNum == 0)
-                            tutorialManager.TutorialCount();
+                        if (psm.playerMeleeCombo.isLastAttack) hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.finishAtkDmgRate * psm.attackBuffRate));
+                        else hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.attackBuffRate));
+                        comboManager.ComboContinues();
+                        if (tutorialManager != null)
+                            if (tutorialManager.tutorialNum == 0)
+                                tutorialManager.TutorialCount();
                     break;
+
                 case "GuardCounter":
-                    hpBar.ApplyDamage(psm.playerManager.playerGuardCounter.Damage);
-                    DamagePosture(psm.playerManager.playerGuardCounter.PostureDamage);
+                    hpBar.ApplyDamage(Mathf.FloorToInt(psm.playerManager.playerGuardCounter.Damage * psm.attackBuffRate));
+                    DamagePosture(Mathf.FloorToInt(psm.playerManager.playerGuardCounter.PostureDamage * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage)));
                     comboManager.ComboContinues();
                     break;
+
                 case "UniqueAttack":
                     hpBar.ApplyDamage(Mathf.FloorToInt(psm.UniqueAttack * psm.attackBuffRate));
                     if (tutorialManager != null)
@@ -413,10 +422,15 @@ public class EnemyController : MonoBehaviour
             // もしHPが0以下になっていたら行動ループを止める
             if (hpBar.nowHp <= 0)
             {
-                // チュートリアル中の撃破ならチュートリアルを進める
-                if (tutorialLoop != null) tutorialManager.tutorialNum++;
-                // 行動ループと実行中の攻撃をまとめて止めて死亡モーションへ
-                Die();
+                if (normalLoop != null)
+                    StopCoroutine(normalLoop);
+                if (tutorialLoop != null)
+                {
+                    StopCoroutine(tutorialLoop);
+                    tutorialManager.tutorialNum++;
+                }
+                // 死亡アニメーション再生などの処理をここに入れる
+                PlayAnim(aNameDown, 0.1f);
             }
         }
     }
@@ -511,7 +525,8 @@ public class EnemyController : MonoBehaviour
         isAttackFinished = true;
         if (normalLoop != null) StopCoroutine(normalLoop);
         if (tutorialLoop != null) StopCoroutine(tutorialLoop);
-        PlayAnim(aNameDown, 0.1f);
+            PlayAnim(aNameDown, 0.1f);
+        
     }
 
     public void AtkEnd()

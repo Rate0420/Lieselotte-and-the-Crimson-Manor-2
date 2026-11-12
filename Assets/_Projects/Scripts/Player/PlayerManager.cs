@@ -26,6 +26,8 @@ public class PlayerManager : MonoBehaviour
     public PlayerGuardCounter playerGuardCounter;   // リーゼロッテ専用(他キャラは未設定でOK)
     public PlayerDeflect playerDeflect;             // ヴェルミリオン専用(弾きのカウント・バフ)
     public PlayerEmergencyDodge playerEmergencyDodge; // ヴェルミリオン専用(緊急回避)
+    public PlayerBuffs playerBuffs;                 // サポートなどのバフ
+    public PlayerSupport playerSupport;
 
     public bool isLiselotte;   // キャラクターフラグ(trueでガードカウンター、パリィが有効。　falseで弾き、緊急回避有効)
 
@@ -251,13 +253,32 @@ public class PlayerManager : MonoBehaviour
         uniqueAttack.Attack(playerStatusManager);
     }
 
-
     // 緊急回避(ヴェルミリオン)
     public void DodgeAction(InputAction.CallbackContext context)
     {
-        Debug.Log("ドッジ");
         if (!context.performed) return;
         if (playerEmergencyDodge != null) playerEmergencyDodge.Dodge();
+    }
+
+    // サポートキャラ(2枠)
+    public void SupportAction1(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        if (playerSupport != null) playerSupport.Use(0);
+    }
+
+    public void SupportAction2(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        if (playerSupport != null) playerSupport.Use(1);
+    }
+
+    /// <summary>
+    /// バフの倍率(バフを持たないキャラは1)
+    /// </summary>
+    public float GetBuffRate(PlayerBuffs.BuffType type)
+    {
+        return playerBuffs != null ? playerBuffs.GetRate(type) : 1f;
     }
 
     // 近接攻撃
@@ -272,6 +293,7 @@ public class PlayerManager : MonoBehaviour
         if (!GuardFlg && !GB_AttackFlg && !GetDamageFlg && !DownFlg && !GameEndFlg && !dummyFlg && !ParryFlg && !UAFlg && !GuardCounterFlg && !DodgeFlg && context.phase == InputActionPhase.Performed)
             playerMeleeCombo.MeleeCombo();
     }
+
     // ガード関連
     public void GuardAction(InputAction.CallbackContext context)
     {

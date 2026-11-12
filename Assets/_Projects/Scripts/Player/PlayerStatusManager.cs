@@ -23,16 +23,23 @@ public class PlayerStatusManager : MonoBehaviour
     // CharacterData部分
     public string CharacterName;
     public GameObject CharacterGameObject;
-
+    public GameObject RangeAttackObject;
     public int MaxHp;
     public int MaxVitality;
     public float MoveSpeed;
-
+    public float StepTime;
+    public float StepDist;
     public float ComboResetTime;
-
+    public float ShootTimer;
+    public float ShootOfsTime;
+    public float ShootDestroyTime;
+    public float BulletSpeed;
     public float GB_AttackTime;
     public float GuardVitalityConsumption;
-
+    public float AvoidanceVitalityConsumption;
+    public float S1VitalityConsumption;
+    public float S2VitalityConsumption;
+    public float S3VitalityConsumption;
     public float[] comboMotionTimes;
     public float[] comboColOffset;
     public float GBColOffset;
@@ -65,12 +72,16 @@ public class PlayerStatusManager : MonoBehaviour
     public float parryTime = 0.3f;
 
     // 初撃ダメージ補正
-    public float firstAtkDmgRate = 1f;
+    public float firstAtkDmgRate = 0f;
+
+    public float finishAtkDmgRate = 0f;
 
     // 今の攻撃に掛かるダメージ倍率(弾きのバフ)。攻撃を出すときに設定され、EnemyControllerが被弾時に掛ける
     public float attackBuffRate = 1f;
 
     public float parryStamina;
+
+    public float parryPostureBoost = 1f;
 
     public WeaponInstance weaponInstance;   // 武器のインスタンス情報(後々static状態の現在装備中のインスタンスをここに入れるor読み込む)
 
@@ -108,6 +119,8 @@ public class PlayerStatusManager : MonoBehaviour
         GuardVitalityConsumption = weaponInstance.guardStaminaCost;
         if (GuardVitalityConsumption < 0) GuardVitalityConsumption = 0;
         firstAtkDmgRate = weaponInstance.firstAttackBoost;
+        finishAtkDmgRate = weaponInstance.finishAttackBoost;
+        parryPostureBoost = weaponInstance.ParryBoost;
 
         // 付呪で変わらないステータス読み込み
         MaxVitality = weaponInstance.weaponTemplate.MAX_Stamina;
@@ -122,8 +135,6 @@ public class PlayerStatusManager : MonoBehaviour
         MeleeBox.transform.position += weaponInstance.weaponTemplate.CharacterMotionSet.AttackColliderPosition;
 
         // プレイヤーのanimにtemplateのanimatorControllerを入れる
-
-
         playerManager.anim.runtimeAnimatorController = weaponInstance.weaponTemplate.CharacterMotionSet.AnimatorController;
         // 未完成部分もあるので注意(モーションなど)
 
@@ -143,17 +154,17 @@ public class PlayerStatusManager : MonoBehaviour
 
         if (playerManager.isLiselotte)
         {
-            for (int i = 0; i < WeaponObjects.Length; i++)
+        for (int i = 0; i < WeaponObjects.Length; i++)
+        {
+            if (i == (int)weaponInstance.WeaponType)
             {
-                if (i == (int)weaponInstance.WeaponType)
-                {
-                    WeaponObjects[i].SetActive(true);
-                }
-                else
-                {
-                    WeaponObjects[i].SetActive(false);
-                }
+                WeaponObjects[i].SetActive(true);
             }
+            else
+            {
+                WeaponObjects[i].SetActive(false);
+            }
+        }
         }
 
         playerManager.uniqueAttack = weaponInstance.weaponTemplate.UniqueAttack;
@@ -227,6 +238,34 @@ public class PlayerStatusManager : MonoBehaviour
 
         // ここまできたらステータスの設定系が完了したってことだからここでGM的なのを呼んでゲーム開始した方がいいかも
 
+    }
+
+    /// <summary>
+    /// 攻撃を出すときに呼ぶ。弾きのバフ・サポートのバフを合わせた倍率をattackBuffRateに入れる。
+    /// 弾きのカウントと使い切りバフは、ここで消費される(攻撃の1振りごとに計算)。
+    /// </summary>
+    public void BeginAttack()
+    {
+        float rate = 1f;
+        if (playerManager.playerDeflect != null) rate *= playerManager.playerDeflect.ConsumeBuff();
+        Debug.Log("アタックバフレート" + playerManager.playerBuffs.GetRate(PlayerBuffs.BuffType.Attack));
+        if (playerManager.playerBuffs != null)
+        {
+            rate *= playerManager.playerBuffs.ConsumeNextAttackRate();
+            rate *= playerManager.playerBuffs.GetRate(PlayerBuffs.BuffType.Attack);
+            Debug.Log("アタックバフレート" + playerManager.playerBuffs.GetRate(PlayerBuffs.BuffType.Attack));
+        }
+        attackBuffRate = rate;
+    }
+
+    /// <summary>
+    /// HPを回復する(最大HPまで)
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (amount <= 0 || hpBar.nowHp <= 0) return;
+        hpBar.ApplyHeal(amount);
+        CurrentHp = hpBar.nowHp;
     }
 
     public void MeleeAtkOnOff(bool f)

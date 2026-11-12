@@ -99,4 +99,21 @@ public class HpBar : MonoBehaviour
         animTimer = 0f;
         animating = true;
     }
+
+    public void ApplyHeal(int heal)
+    {
+        // 指定された回復量を現在HPに加算し、最大HPを超えないようにするとともにHPバーの表示を更新する
+        nowHp += heal;
+        if (nowHp > maxHp)
+        {
+            nowHp = maxHp;
+        }
+        targetFill = (float)nowHp / maxHp;
+        hpBar.fillAmount = targetFill;
+
+        // 赤バーは遅れて追従するためにセット
+        animFill = hpBarAnimation.fillAmount;
+        animTimer = 0f;
+        animating = true;
+    }
 }

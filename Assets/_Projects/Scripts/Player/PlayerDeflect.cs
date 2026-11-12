@@ -41,7 +41,9 @@ public class PlayerDeflect : MonoBehaviour
         UpdateUI();
 
         // 敵の体勢を削る(0になったらダウン)
-        if (enemy != null) enemy.DamagePosture(postureDamage);
+        if (enemy != null) enemy.DamagePosture(postureDamage * playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage));
+
+        Debug.Log("弾き" + (postureDamage * playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage)));
 
         // スコア用の「パリィ回数」にも数える
         playerStatusManager.parryCount++;
