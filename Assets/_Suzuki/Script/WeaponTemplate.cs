@@ -9,6 +9,7 @@ public enum WeaponType
     greatsword,
     rapier,
     vermilion1,
+    vermilionBerserker
     // ƒJƒeƒSƒŠ[‚ğ‘‚â‚·‚È‚ç‚±‚±‚ğ’Ç‰Á
 }
 
