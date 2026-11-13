@@ -295,9 +295,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: a
+  m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2795fde22084ff94fa119f8f77d4cb7d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c6edcee97b287db44913544123d9341f, type: 2}
   m_sharedMaterial: {fileID: -7336873581055862264, guid: 2795fde22084ff94fa119f8f77d4cb7d, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -363,7 +363,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &109457931
@@ -1016,8 +1016,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2795fde22084ff94fa119f8f77d4cb7d, type: 2}
-  m_sharedMaterial: {fileID: -7336873581055862264, guid: 2795fde22084ff94fa119f8f77d4cb7d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: c6edcee97b287db44913544123d9341f, type: 2}
+  m_sharedMaterial: {fileID: -7634161947625473851, guid: c6edcee97b287db44913544123d9341f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4473,13 +4473,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7572611861372195480, guid: 6274af9acf6a35845b4dca9adaad4d56, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 7572611861372195480, guid: 6274af9acf6a35845b4dca9adaad4d56, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6274af9acf6a35845b4dca9adaad4d56, type: 3}
 --- !u!1 &619859431 stripped
 GameObject:
@@ -18544,7 +18538,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8408569ea6bd9784d90aec97b6cac5a8, type: 2}
   - {fileID: 11400000, guid: 1f1698e7c9d317444b2c1dc63bc706e1, type: 2}
   - {fileID: 11400000, guid: abedf55045847224b8b6f4f537a7ba93, type: 2}
-  _unlockedCount: 2
+  _unlockedCount: 4
   _printed: {fileID: 2910915319652475122}
   _dataPrefab: {fileID: 5198414159518484883}
   _dataList:

@@ -19,7 +19,7 @@ public class PlayerSupport : MonoBehaviour
     [SerializeField] SupportBase[] debugSlots = new SupportBase[SupportLoadout.SlotCount];
 #endif
 
-    SupportBase[] slots = new SupportBase[SupportLoadout.SlotCount];
+    public SupportBase[] slots = new SupportBase[SupportLoadout.SlotCount];
     bool[] used = new bool[SupportLoadout.SlotCount];
 
     // 効果時間中のグレー表示用
