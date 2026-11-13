@@ -11,6 +11,7 @@ public class MeneManager : MonoBehaviour
     [SerializeField] private GameObject stagePanel;     // ステージセレクトパネル
     [SerializeField] private GameObject weponPanel;     // 武器変更パネル
     [SerializeField] private GameObject synthesisPanel; // 合成用パネル
+    [SerializeField] private GameObject supportsPanel;   // サポートキャラクター変更パネル
 
     [SerializeField] private GameObject homeFirstButton;        // 初期パネルの初期ボタン
     [SerializeField] private GameObject stageSelectFirstButton; // ステージセレクトの初期ボタン
@@ -107,6 +108,19 @@ public class MeneManager : MonoBehaviour
         synthesisPanel.SetActive(true);
         _panelFlg = false;
         //soundPush.DecisionPush();
+    }
+
+    /// <summary>
+    /// サポートキャラクター変更パネル表示
+    /// </summary>
+    public void ShowSupports()
+    {
+        RememberHomeFocus();
+        ClearPanelFocus();
+        _stageFlg = false;
+        startPanel.SetActive(false);
+        supportsPanel.SetActive(true);
+        _panelFlg = false;
     }
 
     // 緊急

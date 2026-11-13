@@ -14,6 +14,7 @@ public class WeaponInventory : MonoBehaviour
     public WeaponTemplate greatswordTemplate;
     public WeaponTemplate rapierTemplate;
     public WeaponTemplate vermilion;
+    public WeaponTemplate vermilionBerserker;
 
     // 付呪データベース（初期付呪用）
     [SerializeField] public Enchantment defaultEnchantmentDB;
@@ -72,6 +73,16 @@ public class WeaponInventory : MonoBehaviour
             AddWeapon(instance);
         }
         SaveInventory();
+
+        if(testFlag)
+        {
+            var instance = new WeaponInstance(
+                vermilionBerserker,
+                defaultEnchantmentDB
+            );
+            weapons[0] = instance;
+            equipmentIndex = 0;
+        }
 
     }
 

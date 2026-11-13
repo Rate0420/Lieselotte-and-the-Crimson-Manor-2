@@ -14,6 +14,11 @@ public class SupportTimedBuff : SupportBase
     [SerializeField] float multiplier = 1.3f;   // 倍率(1.3 = +30%)
     [SerializeField] float duration = 20f;      // 効果時間(秒)
 
+    public override float Duration
+    {
+        get { return duration; }
+    }
+
     protected override void Apply(PlayerManager pm)
     {
         if (pm.playerBuffs == null) return;

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Blackwood
   description: "maxBonus 1.0\u300120\u79D2"
+  longDescription: "\u4F7F\u7528\u6642\u3001\u73FE\u5728\u4F53\u529B\u304C\u4F4E\u3044\u307B\u3069\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B\u3002\n\u3053\u306E\u30D0\u30D5\u306F20\u79D2\u9593\u7D9A\u304F\u3002"
   icon: {fileID: 0}
   effectPrefab: {fileID: 0}
   seName: 
