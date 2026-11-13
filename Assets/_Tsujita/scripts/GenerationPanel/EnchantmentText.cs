@@ -11,15 +11,36 @@ public class EnchantmentText : MonoBehaviour
     /// </summary>
     public void TextChange_EN()
     {
-        float[,] data = enchantmentEfficacy.GetEnchantmentResult();
+        //float[,] data = enchantmentEfficacy.GetEnchantmentResult();
 
-        for (int i = 0; i < data.GetLength(0); i++)
+        //for (int i = 0; i < data.GetLength(0); i++)
+        //{
+        //    int id = (int)data[i, 0];
+        //    int value = (int)data[i, 1];
+
+        //    string name = enchantmentEfficacy.GetEnchantmentName(id);
+        //    enchantTexts[i].text = $"{name}";
+
+
+        //}
+
+        // ’Š‘IŒ‹‰Ê‚ðŽæ“¾
+        EnchantmentSlot[] data = enchantmentEfficacy.GetResults();
+
+        for (int i = 0; i < data.Length; i++)
         {
-            int id = (int)data[i, 0];
-            int value = (int)data[i, 1];
+            string name = data[i].enchantName.ToString();
+            int level = data[i].enchantLevel;
 
-            string name = enchantmentEfficacy.GetEnchantmentName(id);
-            enchantTexts[i].text = $"{name}";
+            enchantTexts[i].text = $"{name} Lv.{level}";
         }
     }
+    //public void TextChange_EN(EnchantmentSlot[] data)
+    //{
+    //    for (int i = 0; i < data.Length; i++)
+    //    {
+    //        enchantTexts[i].text =
+    //            $"{data[i].enchantName} Lv.{data[i].enchantLevel}";
+    //    }
+    //}
 }

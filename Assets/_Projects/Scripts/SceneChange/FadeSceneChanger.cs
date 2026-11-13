@@ -14,17 +14,22 @@ public class FadeSceneChanger : MonoBehaviour
 
     public static FadeSceneChanger Instance { get; private set; }
     public bool isFading; // フェード中かどうか
+
     private void Awake()
     {
-        // シングルトンパターンの実装
+        Debug.Log("FadeSceneChangerのAwake実行");
+
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // シーン遷移してもこのオブジェクトを破壊しない
+            DontDestroyOnLoad(gameObject);
+
+            Debug.Log("Instance登録成功");
         }
         else
         {
-            Destroy(gameObject); // 既にインスタンスが存在する場合はこのオブジェクトを破壊
+            Debug.Log("重複したFadeSceneChangerを削除");
+            Destroy(gameObject);
         }
     }
 

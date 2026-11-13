@@ -3563,6 +3563,7 @@ MonoBehaviour:
   fadeDuration: 1
   waitDuration: 0.5
   fadeImage: {fileID: 1570672867}
+  isFading: 0
 --- !u!114 &1599560288
 MonoBehaviour:
   m_ObjectHideFlags: 0

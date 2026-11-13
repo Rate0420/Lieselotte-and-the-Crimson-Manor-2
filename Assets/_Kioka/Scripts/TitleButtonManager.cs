@@ -204,7 +204,8 @@ public class TitleButtonManager : MonoBehaviour
     private void ContinueGame()
     {
         PlayDecisionSound();
-
+        Debug.Log(scene[2]);
+        Debug.Log("FadeSceneChangerÅF" + FadeSceneChanger.Instance);
         FadeSceneChanger.ChangeScene(scene[2]);
     }
 
