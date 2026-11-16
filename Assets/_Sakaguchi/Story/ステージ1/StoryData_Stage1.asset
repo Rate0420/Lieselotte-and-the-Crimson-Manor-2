@@ -63,7 +63,7 @@ MonoBehaviour:
   - "...\u3048\u3048\u3044\uFF01\u9A0E\u58EB\u3092\u8210\u3081\u308B\u306A\uFF01"
   - "\u7D20\u624B\u306E\u76F8\u624B\u3001\\n\u307E\u3057\u3066\u3084\u72AC\u755C\u751F\u306B\u8CA0\u3051\u308B\u308F\u3051\u304C\u306A\u3044\u3060\u308D\u3046\uFF01\u3055\u3041\u6765\u3044\uFF01"
   sceneName:
-  - Sakaguchi_BattleTestScene_WerewolfWarrior
+  - Stage_WerewolfWarrior
   bgm:
   - {fileID: 0}
   - {fileID: 0}

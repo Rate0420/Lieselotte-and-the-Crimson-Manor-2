@@ -1540,11 +1540,11 @@ MonoBehaviour:
   fadeController: {fileID: 203327985}
   stageSceneNames:
   - Stage0
-  - Sakaguchi_BattleTestScene_WerewolfWarrior
-  - Sakaguchi_BattleTestScene_RedWingHunter
-  - Sakaguchi_BattleTestScene_HeadlessMaid
-  - Sakaguchi_BattleTestScene_LanternKnight
-  - Sakaguchi_BattleTestScene_Vermillion
+  - Stage_WerewolfWarrior
+  - Stage_RedWingHunter
+  - Stage_HeadlessMaid
+  - Stage_LanternKnight
+  - Stage_Vermillion
   storyStageSceneNames:
   - {fileID: 11400000, guid: fa32eabd1d6e1f7408e6607aef5c3a61, type: 2}
   - {fileID: 11400000, guid: d2284371ab6840040aaacb4a2d6b0a60, type: 2}

@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Kioka/Scene/TitleScene.unity
+    path: Assets/_Projects/Scene/TitleScene.unity
     guid: 1c0b94abb3efadf4f94e339974169a67
   - enabled: 1
     path: Assets/_Kioka/Scene/StoryScene.unity
@@ -18,22 +18,22 @@ EditorBuildSettings:
     path: Assets/_Tsujita/Scenes/SelectScene.unity
     guid: 22302c9e92d44574aaac948296e9f3cd
   - enabled: 1
-    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_RedWingHunter.unity
+    path: Assets/_Projects/Scene/Stage_RedWingHunter.unity
     guid: 009b6ab7b2ec7bf488bcca80d6e2e97c
   - enabled: 1
-    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_WerewolfWarrior.unity
+    path: Assets/_Projects/Scene/Stage_WerewolfWarrior.unity
     guid: c8e9bd337787ce141a05a22724952f12
   - enabled: 1
-    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_HeadlessMaid.unity
+    path: Assets/_Projects/Scene/Stage_HeadlessMaid.unity
     guid: bc459dd7848b08548805f88b407947d5
   - enabled: 1
     path: Assets/_Tsujita/Scenes/TestStage/Stage3.unity
     guid: 680e9020ec2fa3840a905145f1a4c397
   - enabled: 1
-    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_LanternKnight.unity
+    path: Assets/_Projects/Scene/Stage_LanternKnight.unity
     guid: dc2f1ed7edb91c045a2ca09cb77b1944
   - enabled: 1
-    path: Assets/_Sakaguchi/Scene/Sakaguchi_BattleTestScene_Vermillion.unity
+    path: Assets/_Projects/Scene/Stage_Vermillion.unity
     guid: cebf35afc15284b4691228c7043cd67a
   - enabled: 1
     path: Assets/_Tsujita/Scenes/ResultScene.unity
