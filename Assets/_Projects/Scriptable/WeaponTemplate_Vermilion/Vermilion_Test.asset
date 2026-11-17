@@ -28,6 +28,7 @@ MonoBehaviour:
   baseComboGraceTime: 2
   baseGuradStaminaLoss: 30
   MAX_Stamina: 100
+  FatalAttackTime: 0.8
   weaponArtsDamage: 4
   parryStartFrame: 0
   parryEndFrame: 0.2
@@ -48,7 +49,7 @@ MonoBehaviour:
     AttackColliderPosition: {x: 0, y: 1, z: 1.134}
   hitboxStartTime: 100
   hitboxDuration: 100
-  UniqueAttack: {fileID: 11400000, guid: 561b1deb38b0d364fb1dfa91228d593e, type: 2}
+  UniqueAttack: {fileID: 11400000, guid: cff716846bd173e47ac568ff5b48714f, type: 2}
   comboHitData:
   - hitTimes:
     - 0.3

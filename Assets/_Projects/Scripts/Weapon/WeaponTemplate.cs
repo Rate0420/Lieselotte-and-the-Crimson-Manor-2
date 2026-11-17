@@ -40,6 +40,7 @@ public class WeaponTemplate : ScriptableObject
 
     [Header("付呪で変わらないステータス")]
     public int MAX_Stamina;               // スタミナの最大値
+    public float FatalAttackTime;         // 致命攻撃の発生時間
     public float weaponArtsDamage;        // 武器固有攻撃(戦技)の威力
     public int parryStartFrame;           // パリィの発生フレーム
     public float parryEndFrame;           // パリィ後の隙が出来るフレーム

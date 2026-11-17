@@ -469,7 +469,7 @@ public class EnemyController : MonoBehaviour
     IEnumerator hitDownAttack(PlayerManager pm)
     {
         pm.dummyFlg = true;
-        pm.PlayAnim(pm.aNameGBAttack);
+        pm.ContinuousPlayAnim(pm.aNameGBAttack,0.05f);
         pm.comboManager.comboTimerFlg = false;
         yield return new WaitForSeconds(pm.playerStatusManager.GB_AttackTime);
 

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using static CharaSaveManager;
 
 public class TitleButtonManager : MonoBehaviour
 {
@@ -179,6 +180,7 @@ public class TitleButtonManager : MonoBehaviour
     private void StartLiselotte()
     {
         PlayDecisionSound();
+        Instance.SaveCharacter(CharacterType.Liselotte);
         Debug.Log("リーゼロッテ");
         DontDestroyStory.instance.story = storyData;
         FadeSceneChanger.ChangeScene("StoryScene_SakaguchiTest");
@@ -190,6 +192,7 @@ public class TitleButtonManager : MonoBehaviour
     private void StartVelmilion()
     {
         PlayDecisionSound();
+        Instance.SaveCharacter(CharacterType.Velmilion); 
         Debug.Log("ヴェルミリオン");
         DontDestroyStory.instance.story = storyData;
         FadeSceneChanger.ChangeScene("StoryScene_SakaguchiTest");
@@ -201,7 +204,8 @@ public class TitleButtonManager : MonoBehaviour
     private void ContinueGame()
     {
         PlayDecisionSound();
-
+        Debug.Log(scene[2]);
+        Debug.Log("FadeSceneChanger：" + FadeSceneChanger.Instance);
         FadeSceneChanger.ChangeScene(scene[2]);
     }
 

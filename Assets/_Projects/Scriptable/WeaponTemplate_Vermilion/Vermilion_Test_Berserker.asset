@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6304792555dd7ca45bfe61c2bac787fe, type: 3}
+  m_Name: Vermilion_Test_Berserker
+  m_EditorClassIdentifier: 
+  weaponName: VermilionBerserker
+  displayName: "\u30C6\u30B9\u30C8\u6B66\u56682"
+  description: "\u3053\u308C\u306F\u30C6\u30B9\u30C8\u7528\u6B66\u56682"
+  weaponType: 4
+  weaponIcon: {fileID: 21300000, guid: 59feac29b8d85234cbfcc218fcce74f1, type: 3}
+  weaponPrefab: {fileID: 0}
+  basePower: 10
+  baseHP: 100
+  baseStaminaRecoverySpeed: 10
+  baseAttackSpeed: 1
+  baseMoveSpeed: 2
+  baseFatalAttackDamage: 10
+  baseParryReceptionTime: 0.4
+  baseComboGraceTime: 2
+  baseGuradStaminaLoss: 30
+  MAX_Stamina: 100
+  FatalAttackTime: 2
+  weaponArtsDamage: 4
+  parryStartFrame: 0
+  parryEndFrame: 0.2
+  parryFailStaminaCost: 30
+  CharacterMotionSet:
+    AnimatorController: {fileID: 9100000, guid: c4104748e17abe0438738a72c68b7238, type: 2}
+    AttackMotionTimes:
+    - 0.8
+    - 0.8
+    - 0.8
+    - 1.1
+    AttackColliderTiming:
+    - 0
+    - 0
+    - 0
+    - 0
+    AttackColliderSize: {x: 1.5, y: 2, z: 1.66}
+    AttackColliderPosition: {x: 0, y: 1, z: 1.134}
+  hitboxStartTime: 100
+  hitboxDuration: 100
+  UniqueAttack: {fileID: 11400000, guid: 33c7a17a303930746b0ce37b96c94aa3, type: 2}
+  comboHitData:
+  - hitTimes:
+    - 0.3
+  - hitTimes:
+    - 0.4
+  - hitTimes:
+    - 0.35
+  - hitTimes:
+    - 0.55

@@ -37,7 +37,7 @@ public class UniqueAttack : UniqueAttackBase
         psm.playerManager.comboManager.comboTimerFlg = false;
         // 攻撃処理
         // まずアニメーションを再生
-        psm.playerManager.PlayAnim(atkAnimName);
+        psm.playerManager.ContinuousPlayAnim(atkAnimName,0.05f);
         psm.nowAtkState = "UniqueAttack";
         psm.playerManager.UAFlg = true;
 

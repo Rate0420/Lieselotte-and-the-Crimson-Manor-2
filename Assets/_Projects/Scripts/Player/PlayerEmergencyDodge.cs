@@ -35,17 +35,12 @@ public class PlayerEmergencyDodge : MonoBehaviour
     /// <summary>
     /// クールタイムの進み具合(0 = 使った直後、1 = 使える)
     /// </summary>
-    public float CooldownRatio
-    {
-        get { return cooldown > 0f ? 1f - Mathf.Clamp01(cooldownTimer / cooldown) : 1f; }
-    }
 
     public bool CanDodge
     {
         get
         {
-            return cooldownTimer <= 0f
-                && !playerManager.DodgeFlg
+            return !playerManager.DodgeFlg
                 && !playerManager.DownFlg
                 && !playerManager.GameEndFlg
                 && !playerManager.dummyFlg
@@ -57,12 +52,6 @@ public class PlayerEmergencyDodge : MonoBehaviour
     void Awake()
     {
         if (rb == null) rb = playerManager.GetComponent<Rigidbody>();
-    }
-
-    void Update()
-    {
-        if (cooldownTimer > 0f) cooldownTimer -= Time.deltaTime;
-        if (cooldownImage != null) cooldownImage.fillAmount = CooldownRatio;
     }
 
     /// <summary>

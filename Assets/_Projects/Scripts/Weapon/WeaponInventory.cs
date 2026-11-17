@@ -77,7 +77,7 @@ public class WeaponInventory : MonoBehaviour
         if(testFlag)
         {
             var instance = new WeaponInstance(
-                vermilionBerserker,
+                vermilion,
                 defaultEnchantmentDB
             );
             weapons[0] = instance;

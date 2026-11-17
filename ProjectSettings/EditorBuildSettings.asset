@@ -12,10 +12,10 @@ EditorBuildSettings:
     path: Assets/_Kioka/Scene/StoryScene.unity
     guid: a606f293d41b45341b05e0f45cb01fa4
   - enabled: 1
-    path: Assets/_Tsujita/Scenes/TutorialScene.unity
+    path: Assets/_Projects/Scene/TutorialScene.unity
     guid: 5bc895ebb22328f42b5fb6a9f155d2b0
   - enabled: 1
-    path: Assets/_Tsujita/Scenes/SelectScene.unity
+    path: Assets/_Projects/Scene/SelectScene.unity
     guid: 22302c9e92d44574aaac948296e9f3cd
   - enabled: 1
     path: Assets/_Projects/Scene/Stage_RedWingHunter.unity
@@ -36,7 +36,7 @@ EditorBuildSettings:
     path: Assets/_Projects/Scene/Stage_Vermillion.unity
     guid: cebf35afc15284b4691228c7043cd67a
   - enabled: 1
-    path: Assets/_Tsujita/Scenes/ResultScene.unity
+    path: Assets/_Projects/Scene/ResultScene.unity
     guid: 32fba2dd5e02fea4d9c875ebbb9c6580
   - enabled: 1
     path: Assets/_Sakaguchi/Story/StoryScene_SakaguchiTest.unity
