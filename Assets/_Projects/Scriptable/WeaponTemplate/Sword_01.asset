@@ -28,6 +28,7 @@ MonoBehaviour:
   baseComboGraceTime: 2
   baseGuradStaminaLoss: 30
   MAX_Stamina: 100
+  FatalAttackTime: 0.8
   weaponArtsDamage: 4
   parryStartFrame: 0
   parryEndFrame: 0.2

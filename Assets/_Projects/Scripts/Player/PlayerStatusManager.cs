@@ -114,6 +114,7 @@ public class PlayerStatusManager : MonoBehaviour
         attackSpeed = weaponInstance.attackSpeed;
         MoveSpeed = weaponInstance.moveSpeed;
         fatalAtkRate = weaponInstance.criticalDamage;
+
         comboTime = weaponInstance.comboBufferTime;
         parryTime = weaponInstance.parryBufferTime;
         GuardVitalityConsumption = weaponInstance.guardStaminaCost;
@@ -127,6 +128,7 @@ public class PlayerStatusManager : MonoBehaviour
         UniqueAttack = Mathf.FloorToInt(MeleeAtk * weaponInstance.weaponTemplate.weaponArtsDamage);
         UniqueAttack += (int)weaponInstance.UniqueAttackBoost;
         parryStamina = weaponInstance.weaponTemplate.parryFailStaminaCost;
+        GB_AttackTime = weaponInstance.weaponTemplate.FatalAttackTime;
 
         // 
         comboMotionTimes = weaponInstance.weaponTemplate.CharacterMotionSet.AttackMotionTimes;
@@ -197,7 +199,7 @@ public class PlayerStatusManager : MonoBehaviour
         // ƒRƒ“ƒ{‚È‚Ç‚à
         ComboResetTime = characterData.ComboResetTime;
 
-        GB_AttackTime = characterData.GB_AttackTime;
+        //GB_AttackTime = characterData.GB_AttackTime;
         comboMotionTimes = characterData.ComboMotionTimes;
         comboColOffset = characterData.ComboColOffset;
 
