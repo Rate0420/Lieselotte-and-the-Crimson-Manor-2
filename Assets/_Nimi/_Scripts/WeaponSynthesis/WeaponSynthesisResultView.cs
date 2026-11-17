@@ -26,6 +26,7 @@ public class WeaponSynthesisResultView : MonoBehaviour
     [SerializeField] private InventoryWeponDataView _weaponView; // 合成した武器の情報表示
     [SerializeField] private Animator _weaponAnimator;          // 武器の登場アニメーション
     [SerializeField] private UIParticle _particle;              // アニメーション終了後のパーティクル
+    [SerializeField] private TMPro.TMP_Text _titleText;
 
     // ==============================
     // ボタン関連
@@ -34,6 +35,7 @@ public class WeaponSynthesisResultView : MonoBehaviour
     [SerializeField] private GameObject _buttonsRoot;           // ボタン全体の親オブジェクト
     [SerializeField] private UnityEngine.UI.Button _equipButton; // 装備ボタン
     [SerializeField] private UnityEngine.UI.Button _cancelButton;// キャンセルボタン
+    [SerializeField] private TMPro.TMP_Text _cancelText;
 
     [SerializeField] private GameObject _equipHighlightImage;   // 装備ボタンの選択ハイライト
     [SerializeField] private GameObject _cancelHighlightImage;  // キャンセルボタンの選択ハイライト
@@ -175,7 +177,7 @@ public class WeaponSynthesisResultView : MonoBehaviour
     /// 武器情報を設定し、登場アニメーションと効果音を再生する。
     /// </summary>
     /// <param name="weapon">合成によって完成した武器</param>
-    public void Show(WeaponInstance weapon)
+    public void Show(WeaponInstance weapon, string title = null, string cancelLabel = null)
     {
         // 前回の演出状態を初期化
         Hide();
@@ -183,6 +185,9 @@ public class WeaponSynthesisResultView : MonoBehaviour
         // 結果画面を表示
         gameObject.SetActive(true);
         IsOpen = true;
+
+        if (title != null && _titleText != null) _titleText.text = title;
+        if (cancelLabel != null && _cancelText != null) _cancelText.text = cancelLabel;
 
         // ==============================
         // 武器情報の設定

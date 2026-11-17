@@ -1475,6 +1475,7 @@ GameObject:
   - component: {fileID: 289632358}
   - component: {fileID: 289632360}
   - component: {fileID: 289632364}
+  - component: {fileID: 289632365}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1508,6 +1509,21 @@ MonoBehaviour:
   spriteStage5: {fileID: 21300000, guid: b8d1e1d12cc095648ba17f9a0fda2c94, type: 3}
   imageStage5: {fileID: 40148444}
   _panelFlg: 0
+--- !u!114 &289632365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289632357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c36494a59e84876b9484368a79c2dff, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _homePanel: {fileID: 633235878}
+  _stagePanel: {fileID: 560547136}
+  _resultSource: {fileID: 619859432}
 --- !u!114 &289632360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4480,6 +4496,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3513537872515793143, guid: 6274af9acf6a35845b4dca9adaad4d56, type: 3}
   m_PrefabInstance: {fileID: 619859430}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &619859432 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 23695447845965758, guid: 6274af9acf6a35845b4dca9adaad4d56, type: 3}
+  m_PrefabInstance: {fileID: 619859430}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cda1ab4607d72264bb88786a0562c00d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!1 &627051953
 GameObject:
   m_ObjectHideFlags: 0
@@ -12907,7 +12934,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2117383438}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Script: {fileID: 11500000, guid: 4d38bb4a598c4eaba459fa0b6871a8e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_SendPointerHoverToParent: 1
@@ -12929,6 +12956,7 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+  _konamiReward: {fileID: 289632365}
 --- !u!114 &2117383440
 MonoBehaviour:
   m_ObjectHideFlags: 0

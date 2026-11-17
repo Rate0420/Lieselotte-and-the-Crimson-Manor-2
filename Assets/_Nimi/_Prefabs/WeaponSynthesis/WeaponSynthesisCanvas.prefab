@@ -1034,9 +1034,11 @@ MonoBehaviour:
   _weaponView: {fileID: 7435686736618725622}
   _weaponAnimator: {fileID: 7644484229362291551}
   _particle: {fileID: 8862835477418939486}
+  _titleText: {fileID: 5955314017425874267}
   _buttonsRoot: {fileID: 564782518847524463}
   _equipButton: {fileID: 5867407450376462355}
   _cancelButton: {fileID: 3404182599011797423}
+  _cancelText: {fileID: 2607098619711840292}
   _equipHighlightImage: {fileID: 8325562579540259575}
   _cancelHighlightImage: {fileID: 3388466170314683971}
 --- !u!1 &1500432420570373625

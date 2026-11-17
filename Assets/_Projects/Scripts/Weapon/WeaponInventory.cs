@@ -104,7 +104,15 @@ public class WeaponInventory : MonoBehaviour
         if (instance == null) return false;
 
         weapons.Add(instance);
-        SaveInventory();
+        try
+        {
+            SaveInventory();
+        }
+        catch
+        {
+            weapons.RemoveAt(weapons.Count - 1);
+            throw;
+        }
         OnInventoryChanged?.Invoke();
         Debug.Log(instance.weaponTemplate.displayName + "を追加しました");
         return true;
@@ -265,7 +273,18 @@ public class WeaponInventory : MonoBehaviour
         }
 
         string json = JsonUtility.ToJson(save, true);
-        System.IO.File.WriteAllText(SavePath, json);
+        string path = SavePath;
+        string temporaryPath = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            System.IO.File.WriteAllText(temporaryPath, json);
+            if (System.IO.File.Exists(path)) System.IO.File.Replace(temporaryPath, path, null);
+            else System.IO.File.Move(temporaryPath, path);
+        }
+        finally
+        {
+            if (System.IO.File.Exists(temporaryPath)) System.IO.File.Delete(temporaryPath);
+        }
     }
 
     /// <summary>
@@ -301,12 +320,13 @@ public class WeaponInventory : MonoBehaviour
         Debug.Log("ロード");
     }
 
-    WeaponTemplate GetTemplateByID(string id)
+    internal WeaponTemplate GetTemplateByID(string id)
     {
-        if (sword_ShieldTemplate.weaponName == id) return sword_ShieldTemplate;
-        if (greatswordTemplate.weaponName == id) return greatswordTemplate;
-        if (rapierTemplate.weaponName == id) return rapierTemplate;
-        if (vermilion.weaponName == id) return vermilion;
+        if (string.IsNullOrEmpty(id)) return null;
+        if (sword_ShieldTemplate != null && sword_ShieldTemplate.weaponName == id) return sword_ShieldTemplate;
+        if (greatswordTemplate != null && greatswordTemplate.weaponName == id) return greatswordTemplate;
+        if (rapierTemplate != null && rapierTemplate.weaponName == id) return rapierTemplate;
+        if (vermilion != null && vermilion.weaponName == id) return vermilion;
         return null;
     }
 
