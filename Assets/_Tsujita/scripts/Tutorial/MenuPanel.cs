@@ -43,7 +43,7 @@ public class MenuPanel : MonoBehaviour
                 StartCoroutine(OpenAnimation(i));
                 selectNo = i;
 
-                if(i == 5)
+                if(i == 2)
                     endButton[0].GetComponent<Button>().Select();
                 else
                     EventSystem.current.SetSelectedGameObject(null);
@@ -73,7 +73,7 @@ public class MenuPanel : MonoBehaviour
         Time.timeScale = 0f;
         playerInput.SwitchCurrentActionMap("UI");
         menuPanel.SetActive(true);
-        StartCoroutine(OpenAnimation(7));
+        StartCoroutine(OpenAnimation(5));
         StartCoroutine(SelectFirstButton(0));
         isPanelFlg = true;
     }
