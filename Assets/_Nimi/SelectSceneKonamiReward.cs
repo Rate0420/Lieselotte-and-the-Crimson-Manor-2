@@ -59,19 +59,23 @@ public sealed class SelectSceneKonamiReward : MonoBehaviour
         if (pad == null) return false;
 
         bool pressedA = pad.buttonSouth.wasPressedThisFrame;
-        var input = Command[_commandIndex] == CommandButton.A && pressedA
+        var expected = Command[_commandIndex];
+        var input = expected == CommandButton.A && pressedA
             ? CommandButton.A : ReadButton(pad);
         if (!input.HasValue) return false;
-        if (input.Value != Command[_commandIndex])
+        if (input.Value != expected)
         {
             // 「上・上・上」の末尾2回もコマンドの先頭として扱う。
             _commandIndex = input.Value == CommandButton.Up ? (_commandIndex == 2 ? 2 : 1) : 0;
+            LogCommandInput(input.Value, expected);
             return false;
         }
 
         _commandIndex++;
         // 最後の B と A が同じ入力更新に届いた場合もコマンドとして消費する。
-        if (_commandIndex == Command.Length - 1 && pressedA) _commandIndex++;
+        bool pressedTogether = _commandIndex == Command.Length - 1 && pressedA;
+        if (pressedTogether) _commandIndex++;
+        LogCommandInput(input.Value, pressedTogether: pressedTogether);
         if (_commandIndex < Command.Length) return false;
 
         _commandIndex = 0;
@@ -80,6 +84,28 @@ public sealed class SelectSceneKonamiReward : MonoBehaviour
         GrantReward();
         return true;
     }
+
+    [System.Diagnostics.Conditional("UNITY_EDITOR")]
+    [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+    private void LogCommandInput(CommandButton button, CommandButton? expected = null, bool pressedTogether = false)
+    {
+        string input = pressedTogether ? "B → A" : FormatButton(button);
+        string status = "コマンド成立";
+        if (expected.HasValue)
+            status = $"順番が違います（期待入力 {FormatButton(expected.Value)}）";
+        else if (_commandIndex < Command.Length)
+            status = $"次は {FormatButton(Command[_commandIndex])}";
+        Debug.Log($"[コナミコマンド] {input}  {_commandIndex}/{Command.Length}  {status}", this);
+    }
+
+    private static string FormatButton(CommandButton button) => button switch
+    {
+        CommandButton.Up => "↑",
+        CommandButton.Down => "↓",
+        CommandButton.Left => "←",
+        CommandButton.Right => "→",
+        _ => button.ToString()
+    };
 
     private static CommandButton? ReadButton(Gamepad pad)
     {
