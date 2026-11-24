@@ -1,0 +1,8 @@
+diff a/Assets/_Projects/Effect/Flash.png.meta b/Assets/_Projects/Effect/Flash.png.meta	(rejected hunks)
+@@ -1,5 +1,5 @@
+ fileFormatVersion: 2
+-guid: 72e7254e2447444d29a0f9c84237cff1
++guid: 4c25ae6e9cd8e5b449f7a723b152d580
+ timeCreated: 1500450455
+ licenseType: Store
+ TextureImporter:

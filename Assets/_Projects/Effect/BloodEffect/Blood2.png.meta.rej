@@ -1,0 +1,8 @@
+diff a/Assets/_Projects/Effect/BloodEffect/Blood2.png.meta b/Assets/_Projects/Effect/BloodEffect/Blood2.png.meta	(rejected hunks)
+@@ -1,5 +1,5 @@
+ fileFormatVersion: 2
+-guid: 080224932d8e82448b992ba986b21771
++guid: dd0ede73cb372d64e802e58013b19117
+ TextureImporter:
+   serializedVersion: 2
+   mipmaps:
