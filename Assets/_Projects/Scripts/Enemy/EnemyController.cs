@@ -537,11 +537,17 @@ public class EnemyController : MonoBehaviour
     public void ShowAttackWarning()
     {
         Debug.Log("saw");
-        ParryCanvas.Instance.ShowDirection(currentAttackDir);
+        if (ParryCanvas.Instance != null)
+        {
+            ParryCanvas.Instance.ShowDirection(currentAttackDir);
+        }
     }
 
     public void HideAttackWarning()
     {
-        ParryCanvas.Instance.ShowDirection(4);
+        if (ParryCanvas.Instance != null)
+        {
+            ParryCanvas.Instance.ShowDirection(4);
+        }
     }
 }

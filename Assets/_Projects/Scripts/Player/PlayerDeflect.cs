@@ -1,3 +1,4 @@
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,14 @@ public class PlayerDeflect : MonoBehaviour
 {
     public PlayerManager playerManager;
     public PlayerStatusManager playerStatusManager;
+    public float rotateSpeed = 0.05f;
+    public Image Mojiban;
+    public Image Zukei;
+    public Image Mojiban_Back;
+    public Image Zukei_Back;
+
+    public Animator animator;
+    public string[] animNames;
 
     [Header("弾きの性能")]
     [SerializeField] float postureDamage = 8f;      // 1回弾くごとに削る敵の体勢量(パリィより少なめ)
@@ -18,7 +27,8 @@ public class PlayerDeflect : MonoBehaviour
     [SerializeField] int maxCount = 5;              // カウントの上限
 
     [Header("表示(任意)")]
-    [SerializeField] Text countText;                // 弾き回数の表示
+    [SerializeField] Image img;                // 弾き回数の表示
+    [SerializeField] Sprite[] sprites;          // 弾き回数の表示用スプライト(0～5回)
 
     int count;
 
@@ -29,7 +39,20 @@ public class PlayerDeflect : MonoBehaviour
 
     void Start()
     {
-        UpdateUI();
+        //UpdateUI();
+    }
+
+    private void Update()
+    {
+        if (count >= 1)
+        {
+            // 1以上の時、z軸で回転させる
+            Mojiban.gameObject.transform.Rotate(0, 0, rotateSpeed);
+            Zukei.gameObject.transform.Rotate(0, 0, rotateSpeed);
+            Mojiban_Back.gameObject.transform.Rotate(0, 0, rotateSpeed);
+            Zukei_Back.gameObject.transform.Rotate(0, 0, rotateSpeed);
+        }
+
     }
 
     /// <summary>
@@ -66,12 +89,12 @@ public class PlayerDeflect : MonoBehaviour
     public void ResetCount()
     {
         if (count == 0) return;
+        animator.Play(animNames[count+5]);
         count = 0;
-        UpdateUI();
     }
 
     void UpdateUI()
     {
-        if (countText != null) countText.text = count > 0 ? "弾き x" + count : "";
+        animator.Play(animNames[count]);
     }
 }

@@ -50,7 +50,7 @@ public class EnemyAttack : Enemy_AttackBase
             // ¥ UŒ‚ŠÔ
             yield return ec.StartCoroutine(WaitInterruptible(ec, atkTime[i], r => interrupted = r));
             ec.EnableAttackCollider(false);
-            ec.HideAttackWarning();
+            //ec.HideAttackWarning();
 
 
             if (interrupted) { EndImmediately(ec); yield break; }
@@ -58,6 +58,7 @@ public class EnemyAttack : Enemy_AttackBase
 
         // ¥ UŒ‚Œãd’¼
         bool interruptedEnd = false;
+        ec.HideAttackWarning();
         yield return ec.StartCoroutine(WaitInterruptible(ec, endLagTime, r => interruptedEnd = r));
         if (interruptedEnd) { EndImmediately(ec); yield break; }
 
