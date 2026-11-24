@@ -133,11 +133,11 @@ public class EnchantmentEfficacy : MonoBehaviour
         {
             var nameEnum = (EnchantmentDataBase.EnchantmentName)enchantmentEfficacy[i, 0];
             
-            // エンチャントレベルの抽選
+            // エンチャントレベルの抽選(rankNoDateは低い程ランクが高い)
             if (ScoreData.instance.rankNoDate == 0)
-                enchantLevel = Random.Range(1, 5);
+                enchantLevel = Random.Range(1, 4);
             else if (ScoreData.instance.rankNoDate == 1)
-                enchantLevel = Random.Range(0, 4);
+                enchantLevel = Random.Range(1, 3);
             else
                 enchantLevel = 0;
 

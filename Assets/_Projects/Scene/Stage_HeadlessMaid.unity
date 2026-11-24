@@ -3819,6 +3819,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4299969066327801516, guid: 6a12e759fdbce264eb960736ddf0736b, type: 3}
+      propertyPath: m_text
+      value: "<mark=#33333350>\u865A\u308D\u306A\u308B\u9996\u306E\u30E1\u30A4\u30C9</mark>"
+      objectReference: {fileID: 0}
     - target: {fileID: 6527427807798310629, guid: 6a12e759fdbce264eb960736ddf0736b, type: 3}
       propertyPath: playerManager
       value: 
