@@ -224,12 +224,12 @@ public class WeaponInstance
 public class EnchantmentSlot
 {
     public EnchantmentDataBase.EnchantmentName enchantName;
-    [Range(1, 11)] public int enchantLevel; // 0 = Lv1
+    [Min(1)] public int enchantLevel;
 
     public EnchantmentSlot(EnchantmentDataBase.EnchantmentName name, int level)
     {
         enchantName = name;
-        enchantLevel = Mathf.Clamp(level, 1, 11);
+        enchantLevel = Mathf.Max(1, level);
     }
 
     /// <summary>
@@ -252,26 +252,16 @@ public class EnchantmentSlot
         }
 
         // 付呪データを名前で検索
-        var data = enchantmentDB.EnchantmentData
-            .Find(d => d.Name == enchantName);
-
-        if (data == null || data.Efficacy == null)
+        var efficacy = enchantmentDB.EnchantmentData
+            .Find(d => d != null && d.Name == enchantName)?.Efficacy;
+        if (efficacy == null || efficacy.Length == 0 || enchantLevel < 0)
             return 0;
 
-        if (enchantLevel >= data.Efficacy.Length)
-            return 0;
+        int last = efficacy.Length - 1;
+        if (enchantLevel <= last) return efficacy[enchantLevel];
+        if (last == 0) return 0;
 
-        //return enchantLevel;
-        //こうか？
-
-        Debug.Log(
-    $"DB={enchantmentDB.name}, " +
-    $"付呪={data.Name}, " +
-    $"Lv={enchantLevel}, " +
-    $"Element1={data.Efficacy[1]}, " +
-    $"取得値={data.Efficacy[enchantLevel]}"
-);
-
-        return data.Efficacy[enchantLevel];
+        // テーブル上限を超えたレベルでは、最後のレベル間と同じ増分を使う。
+        return efficacy[last] + (enchantLevel - last) * (efficacy[last] - efficacy[last - 1]);
     }
 }
