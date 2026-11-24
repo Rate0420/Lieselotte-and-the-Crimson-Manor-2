@@ -32,6 +32,7 @@ public class DropManager : MonoBehaviour
         slotCount = LotterySlot();
         SpecialEffects();
         WeaponInstanceAdaptation();
+        enchantmentText.TextChange_EN(WeaponInventory.Instance.GetWeapon(WeaponInventory.Instance.GetAllWeapons().Count - 1).enchantmentSlots);
     }
 
     /// <summary>
@@ -74,7 +75,6 @@ public class DropManager : MonoBehaviour
         enchantmentEfficacy.SetSlot(slotCount);
         enchantmentEfficacy.SetTable(rankNo);
         enchantmentEfficacy.SetEnchantmentEfficacy();
-        enchantmentText.TextChange_EN();
     }
 
     /// <summary>

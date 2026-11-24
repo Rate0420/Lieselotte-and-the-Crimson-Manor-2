@@ -257,7 +257,7 @@ public class EnchantmentSlot
         if (efficacy == null || efficacy.Length == 0 || enchantLevel < 0)
             return 0;
 
-        int last = efficacy.Length;
+        int last = efficacy.Length - 1;
         if (enchantLevel <= last) return efficacy[enchantLevel];
         if (last == 0) return 0;
 
