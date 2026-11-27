@@ -46,11 +46,42 @@ public class PlayerStatusManager : MonoBehaviour
 
     // damage部分
     public int MeleeAtk;
+    public int RangeAtk;
+    public int BreakAtk;
     public int UniqueAttack;
+    public int S1Atk;
+    public int S2Atk;
+    public int S3Atk;
+
+    public int U1Atk;
+    public int U2Atk;
+    public int U3Atk;
+
+    public float MeleeAtkHitUltIncrease;
+    public float RangeAtkHitUltIncrease;
+    public float BreakAtkHitUltIncrease;
+
+    public float HitByU1Increase;
+    public float HitByU2Increase;
+    public float HitByU3Increase;
+    public float HitByS1Increase;
+    public float HitByS2Increase;
+    public float HitByS3Increase;
+    public float HitByMeleeAtkIncrease;
+    public float HitByRangeAtkIncrease;
+    public float HitByBreakAtkIncrease;
+
+    public int U1Consumption;
+    public int U2Consumption;
+    public int U3Consumption;
+
+    public int GuardUltIncrease;
+    public int GuardVitalityIncrease;
 
     [Header("現在の状態管理")]
     public int CurrentHp;
     public float CurrentVitality;
+    public float CurrentUltGauge;
     // 現在の攻撃情報
     public string nowAtkState;
 
@@ -71,17 +102,26 @@ public class PlayerStatusManager : MonoBehaviour
     // パリィ許容時間
     public float parryTime = 0.3f;
 
+    public float attackBuffRate = 1f;
+
+    //逆境設定
+    public float adversityBoost = 1f;
+
+    public bool isAdversityActive = false;
+    // 毒付与
+    public float PoisonAttack;
+
+    public bool hasPoisonEnchantment;
     // 初撃ダメージ補正
     public float firstAtkDmgRate = 0f;
 
     public float finishAtkDmgRate = 0f;
 
-    // 今の攻撃に掛かるダメージ倍率(弾きのバフ)。攻撃を出すときに設定され、EnemyControllerが被弾時に掛ける
-    public float attackBuffRate = 1f;
-
     public float parryStamina;
 
     public float parryPostureBoost = 1f;
+
+    public float parryDamage = 0f;
 
     public WeaponInstance weaponInstance;   // 武器のインスタンス情報(後々static状態の現在装備中のインスタンスをここに入れるor読み込む)
 
@@ -105,6 +145,8 @@ public class PlayerStatusManager : MonoBehaviour
         weaponInstance = WeaponInventory.Instance.GetWeapon(WeaponInventory.Instance.equipmentIndex);
         if (weaponInstance == null) weaponInstance = WeaponInventory.Instance.GetWeapon(0);
 
+
+
         // 付呪などの装備情報をここで読み込む
         MaxHp = weaponInstance.HP;
         hpBar.maxHp = MaxHp;
@@ -114,23 +156,22 @@ public class PlayerStatusManager : MonoBehaviour
         attackSpeed = weaponInstance.attackSpeed;
         MoveSpeed = weaponInstance.moveSpeed;
         fatalAtkRate = weaponInstance.criticalDamage;
-
         comboTime = weaponInstance.comboBufferTime;
         parryTime = weaponInstance.parryBufferTime;
         GuardVitalityConsumption = weaponInstance.guardStaminaCost;
         if (GuardVitalityConsumption < 0) GuardVitalityConsumption = 0;
         firstAtkDmgRate = weaponInstance.firstAttackBoost;
         finishAtkDmgRate = weaponInstance.finishAttackBoost;
+        adversityBoost = weaponInstance.AdversityBoost;
         parryPostureBoost = weaponInstance.ParryBoost;
-
+        PoisonAttack = weaponInstance.PoisonAttack;
+        hasPoisonEnchantment = PoisonAttack > 0;
         // 付呪で変わらないステータス読み込み
         MaxVitality = weaponInstance.weaponTemplate.MAX_Stamina;
         UniqueAttack = Mathf.FloorToInt(MeleeAtk * weaponInstance.weaponTemplate.weaponArtsDamage);
         UniqueAttack += (int)weaponInstance.UniqueAttackBoost;
         parryStamina = weaponInstance.weaponTemplate.parryFailStaminaCost;
-        GB_AttackTime = weaponInstance.weaponTemplate.FatalAttackTime;
-
-        // 
+        parryDamage = weaponInstance.ParryDamage;
         comboMotionTimes = weaponInstance.weaponTemplate.CharacterMotionSet.AttackMotionTimes;
         comboColOffset = weaponInstance.weaponTemplate.CharacterMotionSet.AttackColliderTiming;
         MeleeBox.transform.localScale = weaponInstance.weaponTemplate.CharacterMotionSet.AttackColliderSize;
@@ -143,7 +184,7 @@ public class PlayerStatusManager : MonoBehaviour
         // 攻撃速度
         moveManager.moveSpeed = MoveSpeed;
         playerMeleeCombo.attackSpeed = attackSpeed;
-        playerManager.comboManager.comboDuration = comboTime;
+        GameObject.Find("ComboCanvas").GetComponent<ComboManager>().comboDuration = comboTime;
         playerManager.playerParry.parryGrace = parryTime;
         playerDamageReceiver.JustGuardTime = parryTime;
 
@@ -151,11 +192,6 @@ public class PlayerStatusManager : MonoBehaviour
         CurrentHp = MaxHp;
 
         // 武器の見た目を変える
-
-        // ヴェルミリオンテスト用でヴェルミリオンだったら飛ばす
-
-        if (playerManager.isLiselotte)
-        {
         for (int i = 0; i < WeaponObjects.Length; i++)
         {
             if (i == (int)weaponInstance.WeaponType)
@@ -167,18 +203,20 @@ public class PlayerStatusManager : MonoBehaviour
                 WeaponObjects[i].SetActive(false);
             }
         }
-        }
 
         playerManager.uniqueAttack = weaponInstance.weaponTemplate.UniqueAttack;
 
         SetStatus();
+
     }
 
-    private void Update()
+    void Update()
     {
         CurrentHp = hpBar.nowHp;
         CurrentVitality = stamina.currentStamina;
         clearTime += Time.deltaTime;
+
+        CheckAdversity();
     }
 
     /// <summary>
@@ -188,32 +226,75 @@ public class PlayerStatusManager : MonoBehaviour
     {
         var characterData = character.CharacterData[CharacterNum];
         var damageData = damage.Damage[CharacterNum];
-
+        CharacterName = characterData.Name;
+        CharacterGameObject = characterData.Character;
+        RangeAttackObject = characterData.RangeAttackObject;
         MaxHp = characterData.MaxHp;
         MaxVitality = characterData.MaxVitality;
         GuardVitalityConsumption = characterData.GuardVitalityConsumption;
-
+        AvoidanceVitalityConsumption = characterData.AvoidanceVitalityConsumption;
+        S1VitalityConsumption = characterData.S1VitalityConsumption;
+        S2VitalityConsumption = characterData.S2VitalityConsumption;
+        S3VitalityConsumption = characterData.S3VitalityConsumption;
         // 例として移動・回避も
         MoveSpeed = characterData.MoveSpeed;
+        StepTime = characterData.StepTime;
+        StepDist = characterData.StepDis;
 
         // コンボなども
         ComboResetTime = characterData.ComboResetTime;
-
-        //GB_AttackTime = characterData.GB_AttackTime;
-        comboMotionTimes = characterData.ComboMotionTimes;
-        comboColOffset = characterData.ComboColOffset;
-
-
-
-
+        ShootTimer = characterData.ShootTimer;
+        ShootOfsTime = characterData.ShootOfsTime;
+        ShootDestroyTime = characterData.ShootDestroyTime;
+        BulletSpeed = characterData.BulletSpeed;
+        GB_AttackTime = characterData.GB_AttackTime;
+        //comboMotionTimes = characterData.ComboMotionTimes;
+        //comboColOffset = characterData.ComboColOffset;
         GBColOffset = characterData.GBColOffset;
 
         // ダメージ系
         MeleeAtk = damageData.MeleeAtk;
+        RangeAtk = damageData.RangeAtk;
+        BreakAtk = damageData.BreakAtk;
+        S1Atk = damageData.S1Atk;
+        S2Atk = damageData.S2Atk;
+        S3Atk = damageData.S3Atk;
+        U1Atk = damageData.U1Atk;
+        U2Atk = damageData.U2Atk;
+        U3Atk = damageData.U3Atk;
+
+        U1Consumption = damageData.U1Consumption;
+        U2Consumption = damageData.U2Consumption;
+        U3Consumption = damageData.U3Consumption;
+
+        // DamageDataも同様
+        if (damageData != null)
+        {
+            // 攻撃を当てたときのゲージ増加関連
+            MeleeAtkHitUltIncrease = damageData.MeleeAtkHitUltIncrease;
+            RangeAtkHitUltIncrease = damageData.RangeAtkHitUltIncrease;
+            BreakAtkHitUltIncrease = damageData.BreakAtkHitUltIncrease;
+            // 被弾時のゲージ増加関連
+            HitByU1Increase = damageData.HitByU1Increase;
+            HitByU2Increase = damageData.HitByU2Increase;
+            HitByU3Increase = damageData.HitByU3Increase;
+            HitByS1Increase = damageData.HitByS1Increase;
+            HitByS2Increase = damageData.HitByU2Increase;
+            HitByS3Increase = damageData.HitByU3Increase;
+
+            HitByMeleeAtkIncrease = damageData.HitByMeleeAtkIncrease;
+            HitByRangeAtkIncrease = damageData.HitByRangeAtkIncrease;
+            HitByBreakAtkIncrease = damageData.HitByBreakAtkIncrease;
+
+            // ジャスガ関連
+            GuardUltIncrease = damageData.GuardUltIncrease;
+            GuardVitalityIncrease = damageData.GuardVitalityIncrease;
+        }
 
         // 各種ステータスの初期化
         CurrentHp = MaxHp;
         CurrentVitality = MaxVitality;
+        CurrentUltGauge = 0;
     }
 
     /// <summary>
@@ -239,7 +320,6 @@ public class PlayerStatusManager : MonoBehaviour
         }
 
         // ここまできたらステータスの設定系が完了したってことだからここでGM的なのを呼んでゲーム開始した方がいいかも
-
     }
 
     /// <summary>
@@ -270,6 +350,7 @@ public class PlayerStatusManager : MonoBehaviour
         CurrentHp = hpBar.nowHp;
     }
 
+
     public void MeleeAtkOnOff(bool f)
     {
         MeleeBox.SetActive(f);
@@ -290,6 +371,25 @@ public class PlayerStatusManager : MonoBehaviour
         Guard_Box.SetActive(f);
     }
 
+    public (int, string) GetAtkDmg()
+    {
+        int dmg = 0;
+        switch (nowAtkState)
+        {
+            case "MeleeCombo":
+            case "MeleeComboFinish":
+                dmg = MeleeAtk;
+                break;
+            case "RangeAttack":
+                dmg = RangeAtk;
+                break;
+            case "GB_Attack":
+                dmg = BreakAtk;
+                break;
+        }
+        return (dmg, nowAtkState);
+    }
+
     // ここから各スクリプトから呼び出し、ステータス管理と同時に呼び出す関数
     public void HPRend(int num)
     {
@@ -307,11 +407,54 @@ public class PlayerStatusManager : MonoBehaviour
         // 引数をStaminaに対して計算する
     }
 
+    public void UltRend(float num, bool fluctuation)
+    {
+        // バトルUIを管理するスクリプトに引数(Ultゲージの減少or回復)を渡す。
+        ultGauge.Ult(num, fluctuation);
+        // 引数をUltに対して計算する
+    }
+
     public void ScoreEnter()
     {
         GameSceneData.instance.gsdHPDeta = CurrentHp;
         GameSceneData.instance.gsdComboDeta = maxCombo;
         GameSceneData.instance.gsdParryDeta = parryCount;
         GameSceneData.instance.gsdTimeDeta = clearTime;
+    }
+
+    void CheckAdversity()
+    {
+        if (hpBar == null)
+            return;
+
+        Debug.Log(
+            $"[逆境チェック] 現在HP：{hpBar.nowHp} / 最大HP：{hpBar.maxHp} " +
+            $"倍率：{adversityBoost}"
+        );
+
+        if (hpBar.maxHp <= 0)
+            return;
+
+        float hpRate = (float)hpBar.nowHp / hpBar.maxHp;
+
+        bool shouldActive = hpRate <= 0.3f && adversityBoost > 1f;
+
+        if (shouldActive && !isAdversityActive)
+        {
+            isAdversityActive = true;
+            // Debug.Log($"<color=red>[逆境発動]</color> HP割合：{hpRate:P1} 攻撃ダメージ：{adversityBoost:F2}倍");
+        }
+        else if (!shouldActive && isAdversityActive)
+        {
+            isAdversityActive = false;
+            // Debug.Log("<color=yellow>[逆境解除]</color>");
+        }
+    }
+
+    // 攻撃ダメージに逆境倍率を適用する
+    public int ApplyAdversity(int baseDamage)
+    {
+        float rate = isAdversityActive ? adversityBoost : 1f;
+        return Mathf.FloorToInt(baseDamage * rate);
     }
 }

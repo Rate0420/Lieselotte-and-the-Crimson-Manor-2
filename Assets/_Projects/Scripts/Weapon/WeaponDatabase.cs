@@ -7,7 +7,7 @@ using UnityEngine;
 /// 実行する際は名前で検索する必要がある。
 /// </summary>
 [CreateAssetMenu(menuName = "Scriptable Objects/WeaponDatabase")]
-public class WeaponDatabase:ScriptableObject
+public class WeaponDatabase : ScriptableObject
 {
     [Header("データとして登録する武器テンプレート※現状武器種1つにつき1個のみセット可能")]
     public List<WeaponTemplate> weaponTemplates = new List<WeaponTemplate>();

@@ -27,6 +27,8 @@ public class WeaponInstance
     public float firstAttackBoost;
     public float finishAttackBoost;
     public float UniqueAttackBoost;
+    public float AdversityBoost;
+    public float PoisonAttack;
     //固有スキルのステータス
     public float ParryDamage;
     public float ParryBoost;
@@ -77,7 +79,7 @@ public class WeaponInstance
     /// </summary>
     /// <param name="template"></param>
     /// <param name="enchantment"></param>
-    public WeaponInstance(WeaponTemplate template,Enchantment enchantment)
+    public WeaponInstance(WeaponTemplate template, Enchantment enchantment)
     {
         weaponTemplate = template;
         enchantmentDB = enchantment;
@@ -117,9 +119,10 @@ public class WeaponInstance
         firstAttackBoost = 1f;
         finishAttackBoost = 1f;
         UniqueAttackBoost = 1f;
+        AdversityBoost = 1f;
         ParryDamage = 0f;
         WeaponType = weaponTemplate.weaponType;
-
+        PoisonAttack = 0f;
 
         ParryBoost = 1f;
 
@@ -188,6 +191,15 @@ public class WeaponInstance
                     UniqueAttackBoost += value;
                     break;
 
+                case EnchantmentDataBase.EnchantmentName.逆境:
+                    AdversityBoost += value;
+                    break;
+                case EnchantmentDataBase.EnchantmentName.毒付与:
+
+                    PoisonAttack += value;
+                    Debug.Log($"【毒付与】武器に毒付与を適用：効果量={value}");
+                    break;
+
                 case EnchantmentDataBase.EnchantmentName.パリィ時ダメージ:
                     ParryDamage += value;
                     break;
@@ -224,12 +236,12 @@ public class WeaponInstance
 public class EnchantmentSlot
 {
     public EnchantmentDataBase.EnchantmentName enchantName;
-    [Min(1)] public int enchantLevel;
+    [Range(1, 11)] public int enchantLevel; // 0 = Lv1
 
     public EnchantmentSlot(EnchantmentDataBase.EnchantmentName name, int level)
     {
         enchantName = name;
-        enchantLevel = Mathf.Max(1, level);
+        enchantLevel = Mathf.Clamp(level, 1, 11);
     }
 
     /// <summary>
@@ -252,16 +264,26 @@ public class EnchantmentSlot
         }
 
         // 付呪データを名前で検索
-        var efficacy = enchantmentDB.EnchantmentData
-            .Find(d => d != null && d.Name == enchantName)?.Efficacy;
-        if (efficacy == null || efficacy.Length == 0 || enchantLevel < 0)
+        var data = enchantmentDB.EnchantmentData
+            .Find(d => d.Name == enchantName);
+
+        if (data == null || data.Efficacy == null)
             return 0;
 
-        int last = efficacy.Length - 1;
-        if (enchantLevel <= last) return efficacy[enchantLevel];
-        if (last == 0) return 0;
+        if (enchantLevel >= data.Efficacy.Length)
+            return 0;
 
-        // テーブル上限を超えたレベルでは、最後のレベル間と同じ増分を使う。
-        return efficacy[last] + (enchantLevel - last) * (efficacy[last] - efficacy[last - 1]);
+        //return enchantLevel;
+        //こうか？
+
+        Debug.Log(
+    $"DB={enchantmentDB.name}, " +
+    $"付呪={data.Name}, " +
+    $"Lv={enchantLevel}, " +
+    $"Element1={data.Efficacy[1]}, " +
+    $"取得値={data.Efficacy[enchantLevel]}"
+);
+
+        return data.Efficacy[enchantLevel];
     }
 }

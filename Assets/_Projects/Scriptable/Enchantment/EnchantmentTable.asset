@@ -13,21 +13,29 @@ MonoBehaviour:
   m_Name: EnchantmentTable
   m_EditorClassIdentifier: 
   EnchantmentTablesData:
-  - AgeUp: 9
-    GuardReinforcement: 9
-    DeadlyAttack: 9
-    FirstCombo: 9
-    HP: 9
-    SK: 9
-    WeaponArt: 9
-    AU: 9
-    ComboGracePeriodUP: 10
-    ParryGraceTimeUP: 9
-    AttackIntervalUP: 9
+  - AgeUp: 5
+    GuardReinforcement: 5
+    DeadlyAttack: 5
+    FirstCombo: 5
+    FinishCombo: 5
+    HP: 5
+    SK: 5
+    WeaponArt: 5
+    AU: 5
+    ComboGracePeriodUP: 5
+    ParryGraceTimeUP: 5
+    AttackIntervalUP: 5
+    AttackRateUP: 5
+    poison: 5
+    ParryAttack: 5
+    JGFirstCombo: 5
+    ParryUp: 10
+    JGUp: 10
   - AgeUp: 10
     GuardReinforcement: 10
     DeadlyAttack: 10
     FirstCombo: 10
+    FinishCombo: 0
     HP: 10
     SK: 10
     WeaponArt: 9
@@ -35,10 +43,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 8
     ParryGraceTimeUP: 8
     AttackIntervalUP: 7
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 13
     GuardReinforcement: 13
     DeadlyAttack: 13
     FirstCombo: 13
+    FinishCombo: 0
     HP: 10
     SK: 10
     WeaponArt: 8
@@ -46,10 +61,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 5
     ParryGraceTimeUP: 5
     AttackIntervalUP: 3
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 15
     GuardReinforcement: 15
     DeadlyAttack: 15
     FirstCombo: 15
+    FinishCombo: 0
     HP: 9
     SK: 9
     WeaponArt: 7
@@ -57,10 +79,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 4
     ParryGraceTimeUP: 4
     AttackIntervalUP: 2
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -68,10 +97,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -79,10 +115,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -90,10 +133,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -101,10 +151,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -112,10 +169,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -123,10 +187,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -134,10 +205,17 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0
   - AgeUp: 16
     GuardReinforcement: 16
     DeadlyAttack: 16
     FirstCombo: 16
+    FinishCombo: 0
     HP: 12
     SK: 12
     WeaponArt: 4
@@ -145,3 +223,9 @@ MonoBehaviour:
     ComboGracePeriodUP: 2
     ParryGraceTimeUP: 2
     AttackIntervalUP: 1
+    AttackRateUP: 0
+    poison: 0
+    ParryAttack: 0
+    JGFirstCombo: 0
+    ParryUp: 0
+    JGUp: 0

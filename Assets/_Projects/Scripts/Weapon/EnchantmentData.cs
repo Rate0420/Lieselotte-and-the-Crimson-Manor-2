@@ -43,6 +43,8 @@ public enum AffectedStat
     ComboBufferTime,
     ParryBufferTime,
     GuardStaminaCost,
+    AdversityBoost,
+    poison,
     //ŒÅ—LƒXƒLƒ‹
     ParryDamage,
     JGDamage,

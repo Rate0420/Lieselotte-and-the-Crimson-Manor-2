@@ -37,7 +37,6 @@ public class EnemyController : MonoBehaviour
     public bool isAttackFinished = false;
     bool isdowned = false;
     bool isdownHit = false;
-    bool isDead = false;
     public bool cancelAttack = false;
 
     float downedDuration = 5f; // ダウン状態の持続時間
@@ -45,10 +44,20 @@ public class EnemyController : MonoBehaviour
 
     float DownAtkWait = 1f;
 
+    [Header("毒設定")]
+    [SerializeField] private float poisonInterval = 1f;
+    [SerializeField] private float poisonDuration = 5f;
+
+    private Coroutine poisonCoroutine;
+
+    private bool isPoisoned = false;
+
     Coroutine normalLoop;
     Coroutine tutorialLoop;
 
     PlayerStatusManager psm;
+
+    bool isDead = false;
 
     public bool tutorialMode = false;
     // チュートリアル用のenum
@@ -176,14 +185,29 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     public void GetParry()
     {
-        //enemyPostureGauge.ConsumePosture(20f * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage));
-        //// 基礎体幹ダメージ20 × パリィ強化倍率
-        //float postureDamage = 20f * psm.parryPostureBoost;
-        //// 敵の体勢ゲージを減らす
-        //enemyPostureGauge.ConsumePosture(postureDamage);
+        // パリィ強化の効果を反映
+        float basePostureDamage = 20f;
+        float postureDamage = basePostureDamage * psm.parryPostureBoost;
 
-        // 体幹の計算
-        enemyPostureGauge.ConsumePosture(20f * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage)*psm.parryPostureBoost);
+        enemyPostureGauge.ConsumePosture(postureDamage);
+
+        // パリィ強化のログ
+        if (psm.parryPostureBoost > 1f)
+        {
+            Debug.Log(
+                $"<color=cyan>[パリィ強化発動]</color> " +
+                $"倍率：{psm.parryPostureBoost:F2}倍 / " +
+                $"体幹ダメージ：{postureDamage:F0}"
+            );
+        }
+        // パリィ成功時の追加HPダメージ
+        if (psm.parryDamage > 0)
+        {
+            int damage = Mathf.FloorToInt(psm.parryDamage);
+            hpBar.ApplyDamage(damage);
+
+            Debug.Log($"パリィ追加ダメージ：{damage}");
+        }
 
         // パリィ練習
         if (tutorialManager != null)
@@ -277,8 +301,7 @@ public class EnemyController : MonoBehaviour
         float moveTime = 1f;
         float t = 0f;
 
-        // ダウンしたとき、または攻撃範囲に入ったら止まる
-        while (t < moveTime && !isdowned && Vector3.Distance(transform.position, player.transform.position) >= attackRange)
+        while (t < moveTime)
         {
             t += Time.deltaTime;
             transform.position = Vector3.MoveTowards(transform.position,
@@ -316,21 +339,6 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 体勢ゲージを削る(0になったらダウンさせる)。パリィ以外(ガードカウンターなど)の体勢削りで使う
-    /// </summary>
-    public void DamagePosture(float amount)
-    {
-        if (isdowned || isDead) return;
-        enemyPostureGauge.ConsumePosture(amount);
-        if (enemyPostureGauge.currentPosture <= 0)
-        {
-            isdowned = true;
-            StartCoroutine(DownedState());
-        }
-    }
-
-
     public void EnableAttackCollider(bool onOff)
     {
         attackCollider.enabled = onOff;
@@ -350,86 +358,145 @@ public class EnemyController : MonoBehaviour
         isAttackFinished = true; // ループ側の待機を解除
     }
 
+
     private void OnTriggerEnter(Collider other)
     {
-        if (isDead) return;   // 撃破後は被弾処理(ダメージ・SE・死亡処理)をやり直さない
+        if (isDead) return;
         if (this.gameObject.tag == "EnemyAtk") return;
+
         if (other.CompareTag("PlayerAtk"))
         {
-            PlayerStatusManager psm = other.GetComponentInParent<PlayerStatusManager>();
+            PlayerStatusManager psm =
+                other.GetComponentInParent<PlayerStatusManager>();
 
-            // ダウン状態で攻撃を受けた場合(いわゆるバクスタ的な奴の処理)
-            if (isdowned && !isdownHit && psm.nowAtkState != "UniqueAttack" && psm.nowAtkState != "GuardCounter")
+            if (psm == null) return;
+
+            // ダウン状態で攻撃を受けた場合
+            if (isdowned && !isdownHit && psm.nowAtkState != "UniqueAttack")
             {
                 isdownHit = true;
                 PlayerManager pm = other.GetComponentInParent<PlayerManager>();
 
                 StartCoroutine(hitDownAttack(pm));
-
                 return;
             }
+
+            // 実際にダメージを与えたかどうか
+            bool didDamage = false;
 
             switch (psm.nowAtkState)
             {
                 case "MeleeCombo":
-                    if (psm.playerMeleeCombo.isFirstAttack) hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.firstAtkDmgRate * psm.attackBuffRate));
-                    else hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.attackBuffRate));
-                    comboManager.ComboContinues();
+
+                    int damage = psm.MeleeAtk;
+
+                    if (psm.playerMeleeCombo.isFirstAttack) damage = Mathf.FloorToInt(damage * psm.firstAtkDmgRate * psm.attackBuffRate);
+                    else if (psm.playerMeleeCombo.isLastAttack)
+                    {
+                        // 最後の攻撃の時の処理を書く
+                    }
+                    else damage = Mathf.FloorToInt(damage * psm.attackBuffRate);
+
+                    damage = psm.ApplyAdversity(damage);
+                    hpBar.ApplyDamage(damage);
+                    didDamage = true;
                     if (tutorialManager != null)
                         if (tutorialManager.tutorialNum == 0)
                             tutorialManager.TutorialCount();
                     break;
 
                 case "MeleeComboFinish":
-                        if (psm.playerMeleeCombo.isLastAttack) hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.finishAtkDmgRate * psm.attackBuffRate));
-                        else hpBar.ApplyDamage(Mathf.FloorToInt(psm.MeleeAtk * psm.attackBuffRate));
-                        comboManager.ComboContinues();
+                    {
+                        damage = Mathf.FloorToInt(psm.MeleeAtk * psm.finishAtkDmgRate * psm.attackBuffRate);
+
+                        damage = psm.ApplyAdversity(damage);
+                        hpBar.ApplyDamage(damage);
                         if (tutorialManager != null)
                             if (tutorialManager.tutorialNum == 0)
                                 tutorialManager.TutorialCount();
-                    break;
-
-                case "GuardCounter":
-                    hpBar.ApplyDamage(Mathf.FloorToInt(psm.playerManager.playerGuardCounter.Damage * psm.attackBuffRate));
-                    DamagePosture(Mathf.FloorToInt(psm.playerManager.playerGuardCounter.PostureDamage * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage)));
-                    comboManager.ComboContinues();
-                    break;
+                        didDamage = true;
+                        break;
+                    }
 
                 case "UniqueAttack":
-                    hpBar.ApplyDamage(Mathf.FloorToInt(psm.UniqueAttack * psm.attackBuffRate));
-                    if (tutorialManager != null)
-                        if (tutorialManager.tutorialNum == 4)
-                            tutorialManager.TutorialCount();
-                    break;
-            }
-            // ダメージエフェクトの生成
-            Instantiate(damageEffect, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
-            // ダメージSEの再生
-            int seIndex = Random.Range(0, 3);
+                    {
+                        damage = psm.ApplyAdversity(psm.UniqueAttack);
+                        hpBar.ApplyDamage(damage);
 
-            switch (seIndex)
-            {
-                case 0:
-                    SoundManager.Instance.PlaySE("命中音血高");
-                    break;
-                case 1:
-                    SoundManager.Instance.PlaySE("命中音血中");
-                    break;
-                case 2:
-                    SoundManager.Instance.PlaySE("命中音血低");
+
+                        break;
+                    }
+                case "GuardCounter":
+                    damage = psm.ApplyAdversity(Mathf.FloorToInt(psm.playerManager.playerGuardCounter.Damage * psm.attackBuffRate));
+                    hpBar.ApplyDamage(damage);
+                    DamagePosture(Mathf.FloorToInt(psm.playerManager.playerGuardCounter.PostureDamage * psm.playerManager.GetBuffRate(PlayerBuffs.BuffType.PostureDamage)));
+                    didDamage = true;
                     break;
             }
-            // もしHPが0以下になっていたら行動ループを止める
+
+            // 有効な攻撃が命中したときだけコンボ加算
+            if (didDamage)
+            {
+                comboManager.ComboContinues();
+
+                // 有効な攻撃が命中したときだけコンボ加算
+                if (didDamage)
+                {
+                    // 毒の受け渡し確認
+                    Debug.Log(
+                        $"【毒チェック】hasPoisonEnchantment={psm.hasPoisonEnchantment}, " +
+                        $"PoisonAttack={psm.PoisonAttack}"
+                    );
+
+                    if (psm.hasPoisonEnchantment && psm.PoisonAttack > 0)
+                    {
+                        Debug.Log($"【毒付与発動】毒ダメージ={psm.PoisonAttack}");
+                        ApplyPoison(psm.PoisonAttack);
+                    }
+                    else
+                    {
+                        Debug.Log("【毒付与されていない】");
+                    }
+
+                    // 以下のダメージエフェクトとSEの処理はそのまま
+                }
+
+                // ダメージエフェクト
+                Instantiate(
+                    damageEffect,
+                    transform.position + new Vector3(0, 1, 0),
+                    Quaternion.identity
+                );
+
+                // ダメージSE
+                int seIndex = Random.Range(0, 3);
+
+                switch (seIndex)
+                {
+                    case 0:
+                        SoundManager.Instance.PlaySE("命中音血高");
+                        break;
+                    case 1:
+                        SoundManager.Instance.PlaySE("命中音血中");
+                        break;
+                    case 2:
+                        SoundManager.Instance.PlaySE("命中音血低");
+                        break;
+                }
+            }
+
+            // HPが0以下になったら行動ループを停止
             if (hpBar.nowHp <= 0)
             {
                 if (normalLoop != null)
                     StopCoroutine(normalLoop);
+
                 if (tutorialLoop != null)
                 {
                     StopCoroutine(tutorialLoop);
                     tutorialManager.tutorialNum++;
                 }
-                // 死亡アニメーション再生などの処理をここに入れる
+
                 PlayAnim(aNameDown, 0.1f);
             }
         }
@@ -469,7 +536,7 @@ public class EnemyController : MonoBehaviour
     IEnumerator hitDownAttack(PlayerManager pm)
     {
         pm.dummyFlg = true;
-        pm.ContinuousPlayAnim(pm.aNameGBAttack,0.05f);
+        pm.PlayAnim(pm.aNameGBAttack);
         pm.comboManager.comboTimerFlg = false;
         yield return new WaitForSeconds(pm.playerStatusManager.GB_AttackTime);
 
@@ -525,8 +592,8 @@ public class EnemyController : MonoBehaviour
         isAttackFinished = true;
         if (normalLoop != null) StopCoroutine(normalLoop);
         if (tutorialLoop != null) StopCoroutine(tutorialLoop);
-            PlayAnim(aNameDown, 0.1f);
-        
+        PlayAnim(aNameDown, 0.1f);
+
     }
 
     public void AtkEnd()
@@ -550,4 +617,71 @@ public class EnemyController : MonoBehaviour
             ParryCanvas.Instance.ShowDirection(4);
         }
     }
+
+
+    public void ApplyPoison(float damage)
+    {
+        if (damage <= 0 || hpBar.nowHp <= 0)
+        {
+            Debug.Log($"【毒付与失敗】毒ダメージ={damage}, 敵HP={hpBar.nowHp}");
+            return;
+        }
+
+        Debug.Log($"【毒状態開始】毒ダメージ={damage} / 継続時間={poisonDuration}秒");
+
+        // 毒状態中に再度攻撃されたら、毒の時間をリセット
+        if (poisonCoroutine != null)
+        {
+            StopCoroutine(poisonCoroutine);
+            Debug.Log("【毒時間リセット】");
+        }
+
+        poisonCoroutine = StartCoroutine(PoisonEffect(damage));
+    }
+
+    /// <summary>
+    /// 体勢ゲージを削る(0になったらダウンさせる)。パリィ以外(ガードカウンターなど)の体勢削りで使う
+    /// </summary>
+    public void DamagePosture(float amount)
+    {
+        if (isdowned || isDead) return;
+        enemyPostureGauge.ConsumePosture(amount);
+        if (enemyPostureGauge.currentPosture <= 0)
+        {
+            isdowned = true;
+            StartCoroutine(DownedState());
+        }
+    }
+
+
+
+    private IEnumerator PoisonEffect(float damage)
+    {
+        Debug.Log("【毒コルーチン開始】");
+
+        float elapsed = 0f;
+
+        while (elapsed < poisonDuration && hpBar.nowHp > 0)
+        {
+            yield return new WaitForSeconds(poisonInterval);
+
+            if (hpBar.nowHp <= 0)
+                break;
+
+            int poisonDamage = Mathf.CeilToInt(damage);
+
+            Debug.Log($"【毒ダメージ直前】敵HP={hpBar.nowHp}, 毒ダメージ={poisonDamage}");
+
+            hpBar.ApplyDamage(poisonDamage);
+
+            Debug.Log($"【毒ダメージ直後】敵HP={hpBar.nowHp}");
+
+            elapsed += poisonInterval;
+        }
+
+        Debug.Log("【毒コルーチン終了】");
+
+        poisonCoroutine = null;
+    }
+
 }

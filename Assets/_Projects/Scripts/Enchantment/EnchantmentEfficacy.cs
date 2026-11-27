@@ -1,4 +1,8 @@
+
+using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using static EnchantmentDataBase;
 
 public class EnchantmentEfficacy : MonoBehaviour
 {
@@ -7,18 +11,29 @@ public class EnchantmentEfficacy : MonoBehaviour
 
     // 付いた付呪の名前と効果を格納（float[効果，効力]）
     float[,] enchantmentEfficacy;
-    // テーブルの中身を格納　（int[名前, 確率]）
+
+    // テーブルの中身を格納（int[名前, 確率]）
     int[,] enchantmentTableContent;
-    [SerializeField] int tablesNo;      // テーブルの番号
+
+    [SerializeField] int tablesNo;
     [SerializeField] int slot;
 
-    private int enchantLevel;
+    // 重複禁止の付呪
+    private readonly HashSet<EnchantmentDataBase.EnchantmentName>
+        uniqueEnchantments = new()
+    {
+        EnchantmentDataBase.EnchantmentName.毒付与
+    };
 
     void Start()
     {
-        // 付呪関連の初期化処理
         enchantmentEfficacy = new float[slot, 2];
-        enchantmentTableContent = new int[enchantment.EnchantmentData.Count, 2];
+
+        if (enchantment != null && enchantment.EnchantmentData != null)
+        {
+            enchantmentTableContent =
+                new int[enchantment.EnchantmentData.Count, 2];
+        }
     }
 
     /// <summary>
@@ -26,69 +41,141 @@ public class EnchantmentEfficacy : MonoBehaviour
     /// </summary>
     public void SetTable(int rankNo)
     {
-        // enchantmentTableContentの中身がnull化してないかチェックし、ないなら再度初期化
-        if (enchantmentTableContent == null || enchantmentTableContent.GetLength(0) != enchantment.EnchantmentData.Count)
+        if (enchantment == null ||
+            enchantment.EnchantmentData == null ||
+            enchantmentTable == null ||
+            enchantmentTable.EnchantmentTablesData == null)
         {
-            enchantmentTableContent = new int[enchantment.EnchantmentData.Count, 2];
+            Debug.LogError("Enchantment関連のデータが設定されていません");
+            return;
         }
-        Debug.Log($"enchantment = {enchantment}");
-        Debug.Log($"EnchantmentData = {enchantment?.EnchantmentData}");
-        Debug.Log($"EnchantmentData.Count = {enchantment?.EnchantmentData?.Count}");
-        Debug.Log($"enchantmentTableContent.Length = {enchantmentTableContent?.Length}");
-        // 確率の合計が100を超えていないかの確認用
+
+        if (tablesNo < 0 ||
+            tablesNo >= enchantmentTable.EnchantmentTablesData.Count)
+        {
+            Debug.LogError("tablesNoが範囲外です");
+            return;
+        }
+
+        if (enchantmentTableContent == null ||
+            enchantmentTableContent.GetLength(0) != enchantment.EnchantmentData.Count)
+        {
+            enchantmentTableContent =
+                new int[enchantment.EnchantmentData.Count, 2];
+        }
+
         int count = 0;
 
         for (int i = 0; i < enchantment.EnchantmentData.Count; i++)
         {
-            enchantmentTableContent[i, 0] = (int)enchantment.EnchantmentData[i].Name;
+            enchantmentTableContent[i, 0] =
+                (int)enchantment.EnchantmentData[i].Name;
 
-            // 付呪の名前を参照して確率を格納する
             switch (enchantmentTableContent[i, 0])
             {
                 case (int)EnchantmentDataBase.EnchantmentName.HP増加:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].HP;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].HP;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.スタミナ回復上昇:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].SK;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].SK;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.攻撃力増加:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].AU;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].AU;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.初撃強化:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].FirstCombo;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].FirstCombo;
                     break;
+
+                case (int)EnchantmentDataBase.EnchantmentName.フィニッシュ強化:
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].FinishCombo;
+                    break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.致命強化:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].DeadlyAttack;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].DeadlyAttack;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.戦技強化:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].WeaponArt;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].WeaponArt;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.攻撃速度上昇:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].AttackIntervalUP;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].AttackIntervalUP;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.コンボ時間増加:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].ComboGracePeriodUP;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].ComboGracePeriodUP;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.パリィ猶予増加:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].ParryGraceTimeUP;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].ParryGraceTimeUP;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.移動速度上昇:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].AgeUp;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].AgeUp;
                     break;
+
                 case (int)EnchantmentDataBase.EnchantmentName.ガード強化:
-                    enchantmentTableContent[i, 1] = enchantmentTable.EnchantmentTablesData[tablesNo].GuardReinforcement;
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].GuardReinforcement;
+                    break;
+
+                case (int)EnchantmentDataBase.EnchantmentName.パリィ時ダメージ:
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].ParryAttack;
+                    break;
+
+                //case (int)EnchantmentDataBase.EnchantmentName.ジャスガ時初撃強化:
+                //    enchantmentTableContent[i, 1] =
+                //        enchantmentTable.EnchantmentTablesData[tablesNo].JGFirstCombo;
+                //    break;
+
+                case (int)EnchantmentDataBase.EnchantmentName.パリィ強化:
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].ParryUp;
+                    break;
+
+                case (int)EnchantmentDataBase.EnchantmentName.ジャスガ強化:
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].JGUp;
+                    break;
+
+                case (int)EnchantmentDataBase.EnchantmentName.逆境:
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].AttackRateUP;
+                    break;
+
+                case (int)EnchantmentDataBase.EnchantmentName.毒付与:
+                    enchantmentTableContent[i, 1] =
+                        enchantmentTable.EnchantmentTablesData[tablesNo].poison;
                     break;
                 default:
                     Debug.Log(enchantmentTableContent[i, 0] + "は存在しません");
                     break;
             }
-            // 確率の合計を取得
+
             count += enchantmentTableContent[i, 1];
         }
-        // 確率の合計が100％になっているかの確認
+
         if (count == 100) return;
-        if (100 < count) Debug.Log("確率の合計が100を超えています");
-        else Debug.Log("確率の合計が100を下回っています");
+
+        if (count > 100)
+            Debug.Log("確率の合計が100を超えています");
+        else
+            Debug.Log("確率の合計が100を下回っています");
     }
 
     /// <summary>
@@ -96,52 +183,111 @@ public class EnchantmentEfficacy : MonoBehaviour
     /// </summary>
     public void SetEnchantmentEfficacy()
     {
-        // 付呪のスロット分だけ付与する
+        if (enchantmentTableContent == null)
+        {
+            Debug.LogError("先にSetTableを実行してください");
+            return;
+        }
+
+        // 抽選済みの重複禁止スキル
+        HashSet<EnchantmentDataBase.EnchantmentName>
+            acquiredUniqueSkills = new();
+
+        // スロットを初期化
+        enchantmentEfficacy = new float[slot, 2];
+
         for (int i = 0; i < slot; i++)
         {
-            int rand = Random.Range(0, 100);
-            // ランダムに決まった数字を、効果が付く確率分引いていき
-            // 0になったタイミングの効果を付与する
-            for (int j = 0; j < enchantmentTableContent.Length / 2; j++)
+            int totalProbability = 0;
+
+            // 現在のスロットで抽選可能な確率を合計
+            for (int j = 0; j < enchantmentTableContent.GetLength(0); j++)
             {
-                rand -= enchantmentTableContent[j, 1];
+                var enchantName =
+                    (EnchantmentDataBase.EnchantmentName)
+                    enchantmentTableContent[j, 0];
+
+                if (uniqueEnchantments.Contains(enchantName) &&
+                    acquiredUniqueSkills.Contains(enchantName))
+                {
+                    continue;
+                }
+
+                totalProbability += enchantmentTableContent[j, 1];
+            }
+
+            if (totalProbability <= 0)
+            {
+                Debug.LogWarning("抽選可能な付呪がありません");
+                break;
+            }
+
+            // 抽選
+            int rand = Random.Range(0, totalProbability);
+
+            for (int j = 0; j < enchantmentTableContent.GetLength(0); j++)
+            {
+                var enchantName =
+                    (EnchantmentDataBase.EnchantmentName)
+                    enchantmentTableContent[j, 0];
+
+                int probability = enchantmentTableContent[j, 1];
+
+                // 既に取得した重複禁止スキルは除外
+                if (uniqueEnchantments.Contains(enchantName) &&
+                    acquiredUniqueSkills.Contains(enchantName))
+                {
+                    continue;
+                }
+
+                rand -= probability;
+
                 if (rand < 0)
                 {
-                    // 抽選された付呪を格納する
-                    enchantmentEfficacy[i, 0] = enchantmentTableContent[j, 0];
-                    Debug.Log(enchantmentEfficacy[i, 0]);
+                    // 付呪名を格納
+                    enchantmentEfficacy[i, 0] = (int)enchantName;
 
-                    // 付呪の効力を格納する
+                    // 付呪の効力を格納
                     for (int k = 0; k < enchantment.EnchantmentData.Count; k++)
                     {
-                        // チェック.
-                        if (enchantmentEfficacy[i, 0] == (int)enchantment.EnchantmentData[k].Name)
-                            enchantmentEfficacy[i, 1] = enchantment.EnchantmentData[k].Efficacy[0];
+                        if (enchantmentEfficacy[i, 0] ==
+                            (int)enchantment.EnchantmentData[k].Name)
+                        {
+                            enchantmentEfficacy[i, 1] =
+                                enchantment.EnchantmentData[k].Efficacy[0];
+
+                            break;
+                        }
                     }
-                    Debug.Log(((EnchantmentDataBase.EnchantmentName)enchantmentEfficacy[i, 0]).ToString());
+
+                    // 重複禁止スキルなら取得済みに登録
+                    if (uniqueEnchantments.Contains(enchantName))
+                    {
+                        acquiredUniqueSkills.Add(enchantName);
+                    }
+
+                    Debug.Log(enchantName.ToString());
+
                     break;
                 }
             }
         }
     }
 
+    /// <summary>
+    /// 抽選結果を取得する
+    /// </summary>
     public EnchantmentSlot[] GetResults()
     {
         EnchantmentSlot[] results = new EnchantmentSlot[slot];
 
         for (int i = 0; i < slot; i++)
         {
-            var nameEnum = (EnchantmentDataBase.EnchantmentName)enchantmentEfficacy[i, 0];
-            
-            // エンチャントレベルの抽選(rankNoDateは低い程ランクが高い)
-            if (ScoreData.instance.rankNoDate == 0)
-                enchantLevel = Random.Range(1, 4);
-            else if (ScoreData.instance.rankNoDate == 1)
-                enchantLevel = Random.Range(1, 3);
-            else
-                enchantLevel = 0;
+            var nameEnum =
+                (EnchantmentDataBase.EnchantmentName)
+                enchantmentEfficacy[i, 0];
 
-            var enchantmentLevel = enchantLevel;
+            int enchantmentLevel = 1;
 
             results[i] = new EnchantmentSlot(nameEnum, enchantmentLevel);
         }
@@ -149,11 +295,12 @@ public class EnchantmentEfficacy : MonoBehaviour
         return results;
     }
 
+    /// <summary>
+    /// スロット数を設定する
+    /// </summary>
     public void SetSlot(int slotCount)
     {
-        slot = slotCount; // ここでスロット数を反映！
-
-        // 受け取ったスロット数に合わせて配列を作り直す
+        slot = slotCount;
         enchantmentEfficacy = new float[slot, 2];
     }
 
