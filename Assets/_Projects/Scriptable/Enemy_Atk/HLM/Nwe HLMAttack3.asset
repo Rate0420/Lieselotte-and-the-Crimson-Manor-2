@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dir: 0200000001000000
   atkiInterval:
-  - 0.9
+  - 0.8
   - 0.8
   atkTime:
   - 0.01

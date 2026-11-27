@@ -16,7 +16,7 @@ MonoBehaviour:
   atkiInterval:
   - 1
   - 0.63
-  - 1.16
+  - 1
   atkTime:
   - 0.1
   - 0.1

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Mei
   description: healRate 0.4
-  icon: {fileID: 21300000, guid: 020adeada6114964b9ef6f5284ec8fa8, type: 3}
+  longDescription: 
+  icon: {fileID: 21300000, guid: df5d940c20f0ae04c866e2cf55fea317, type: 3}
   effectPrefab: {fileID: 0}
   seName: 
   healRate: 0.4

@@ -117,4 +117,5 @@ public class WriteText : MonoBehaviour
         image.SetActive(true);
         isDrawing = false;
     }
+
 }

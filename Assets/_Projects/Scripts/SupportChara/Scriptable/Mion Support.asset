@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Mion
   description: "\xD73"
-  icon: {fileID: 0}
+  longDescription: 
+  icon: {fileID: 21300000, guid: 2895c92a3fb4c7a41b6e4de52daf98e3, type: 3}
   effectPrefab: {fileID: 0}
   seName: 
   multiplier: 3

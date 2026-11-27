@@ -15,7 +15,7 @@ MonoBehaviour:
   displayName: Hinata
   description: "ComboTime\u3001\xD71.5\u300120\u79D2"
   longDescription: "\u30B3\u30F3\u30DC\u53D7\u4ED8\u6642\u9593\u304C1.5\u500D\u4F38\u3073\u308B\u3002\n\u3053\u306E\u52B9\u679C\u306F20\u79D2\u9593\u7D9A\u304F\u3002"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 466dd6d5de11da84fab0905aa4e92c92, type: 3}
   effectPrefab: {fileID: 0}
   seName: 
   buffType: 2

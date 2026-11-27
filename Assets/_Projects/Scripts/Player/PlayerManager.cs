@@ -265,12 +265,14 @@ public class PlayerManager : MonoBehaviour
     {
         if (!context.performed) return;
         if (playerSupport != null) playerSupport.Use(0);
+        Debug.Log("SupportAction1 called");
     }
 
     public void SupportAction2(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
         if (playerSupport != null) playerSupport.Use(1);
+        Debug.Log("SupportAction1 called");
     }
 
     /// <summary>
